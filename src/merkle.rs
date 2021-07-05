@@ -36,7 +36,7 @@ pub fn merkle_sign(sig: &mut[u8], root: &mut[u8],
     info.wots_sign_leaf = idx_leaf;
 
     wots_treehashx1::<SPX_TREE_HEIGHT, STACK_LEN>(root, &mut sig[SPX_WOTS_BYTES..], ctx, idx_leaf, 0,tree_addr, &mut info);
-    // sig[..SPX_TREE_HEIGHT * SPX_N + SPX_WOTS_BYTES].clone_from_slice(&info.wots_sig);
+    sig[..SPX_WOTS_BYTES].clone_from_slice(&info.wots_sig[..SPX_WOTS_BYTES]);
 }
 
 /* Compute root node of the top-most subtree. */
