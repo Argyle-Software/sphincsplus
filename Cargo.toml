@@ -10,7 +10,13 @@ pqc_core = {version = "0.1.0", path = "../pqc_core"}
 rand = "0.7.3"
 
 [features]
-default = ["haraka"]
+default = ["haraka", "simple"]
 sha2 = []
 sha512 = []
 haraka = []
+simple = []
+robust = []
+
+# Speed up KAT
+[profile.test]
+opt-level = 3
