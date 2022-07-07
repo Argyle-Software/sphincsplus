@@ -7,11 +7,8 @@
  */
 
 use std::ops::{BitXor, BitAnd, Not};
-
 use crate::context::SpxCtx;
-// use crate::haraka::*;
 use crate::params::SPX_N;
-// use crate::utils::*;
 
 const HARAKAS_RATE: usize = 32;
 
@@ -74,9 +71,8 @@ fn br_range_enc32le(dst: &mut [u8], v: &[u32], mut num: usize)
   }
 }
 
-// TODO: Check correctness
-// fn br_aes_ct64_bitslice_sbox(q: &mut [u64])
-fn br_aes_ct64_bitslice_sbox<T>(q: &mut [T])
+// Generic type to handle br_aes_ct64_bitslice_Sbox function
+fn br_aes_ct_bitslice_sbox<T>(q: &mut [T])
 where T: BitXor<Output = T> + BitAnd<Output = T> + Not<Output = T> + Copy
 {
   // This S-box implementation is a straightforward translation of
@@ -241,181 +237,6 @@ where T: BitXor<Output = T> + BitAnd<Output = T> + Not<Output = T> + Copy
   q[1] = s6;
   q[0] = s7;
 }
-
-// pub fn br_aes_ct_bitslice_Sbox(q: &mut[u32])
-// {
-//     /*
-//      * This S-box implementation is a straightforward translation of
-//      * the circuit described by Boyar and Peralta in "A new
-//      * combinational logic minimization technique with applications
-//      * to cryptology" (https://eprint.iacr.org/2009/191.pdf).
-//      *
-//      * Note that variables x* (input) and s* (output) are numbered
-//      * in "reverse" order (x0 is the high bit, x7 is the low bit).
-//      */
-
-//     uint32_t x0, x1, x2, x3, x4, x5, x6, x7;
-//     uint32_t y1, y2, y3, y4, y5, y6, y7, y8, y9;
-//     uint32_t y10, y11, y12, y13, y14, y15, y16, y17, y18, y19;
-//     uint32_t y20, y21;
-//     uint32_t z0, z1, z2, z3, z4, z5, z6, z7, z8, z9;
-//     uint32_t z10, z11, z12, z13, z14, z15, z16, z17;
-//     uint32_t t0, t1, t2, t3, t4, t5, t6, t7, t8, t9;
-//     uint32_t t10, t11, t12, t13, t14, t15, t16, t17, t18, t19;
-//     uint32_t t20, t21, t22, t23, t24, t25, t26, t27, t28, t29;
-//     uint32_t t30, t31, t32, t33, t34, t35, t36, t37, t38, t39;
-//     uint32_t t40, t41, t42, t43, t44, t45, t46, t47, t48, t49;
-//     uint32_t t50, t51, t52, t53, t54, t55, t56, t57, t58, t59;
-//     uint32_t t60, t61, t62, t63, t64, t65, t66, t67;
-//     uint32_t s0, s1, s2, s3, s4, s5, s6, s7;
-
-//     x0 = q[7];
-//     x1 = q[6];
-//     x2 = q[5];
-//     x3 = q[4];
-//     x4 = q[3];
-//     x5 = q[2];
-//     x6 = q[1];
-//     x7 = q[0];
-
-//     /*
-//      * Top linear transformation.
-//      */
-//     y14 = x3 ^ x5;
-//     y13 = x0 ^ x6;
-//     y9 = x0 ^ x3;
-//     y8 = x0 ^ x5;
-//     t0 = x1 ^ x2;
-//     y1 = t0 ^ x7;
-//     y4 = y1 ^ x3;
-//     y12 = y13 ^ y14;
-//     y2 = y1 ^ x0;
-//     y5 = y1 ^ x6;
-//     y3 = y5 ^ y8;
-//     t1 = x4 ^ y12;
-//     y15 = t1 ^ x5;
-//     y20 = t1 ^ x1;
-//     y6 = y15 ^ x7;
-//     y10 = y15 ^ t0;
-//     y11 = y20 ^ y9;
-//     y7 = x7 ^ y11;
-//     y17 = y10 ^ y11;
-//     y19 = y10 ^ y8;
-//     y16 = t0 ^ y11;
-//     y21 = y13 ^ y16;
-//     y18 = x0 ^ y16;
-
-//     /*
-//      * Non-linear section.
-//      */
-//     t2 = y12 & y15;
-//     t3 = y3 & y6;
-//     t4 = t3 ^ t2;
-//     t5 = y4 & x7;
-//     t6 = t5 ^ t2;
-//     t7 = y13 & y16;
-//     t8 = y5 & y1;
-//     t9 = t8 ^ t7;
-//     t10 = y2 & y7;
-//     t11 = t10 ^ t7;
-//     t12 = y9 & y11;
-//     t13 = y14 & y17;
-//     t14 = t13 ^ t12;
-//     t15 = y8 & y10;
-//     t16 = t15 ^ t12;
-//     t17 = t4 ^ t14;
-//     t18 = t6 ^ t16;
-//     t19 = t9 ^ t14;
-//     t20 = t11 ^ t16;
-//     t21 = t17 ^ y20;
-//     t22 = t18 ^ y19;
-//     t23 = t19 ^ y21;
-//     t24 = t20 ^ y18;
-
-//     t25 = t21 ^ t22;
-//     t26 = t21 & t23;
-//     t27 = t24 ^ t26;
-//     t28 = t25 & t27;
-//     t29 = t28 ^ t22;
-//     t30 = t23 ^ t24;
-//     t31 = t22 ^ t26;
-//     t32 = t31 & t30;
-//     t33 = t32 ^ t24;
-//     t34 = t23 ^ t33;
-//     t35 = t27 ^ t33;
-//     t36 = t24 & t35;
-//     t37 = t36 ^ t34;
-//     t38 = t27 ^ t36;
-//     t39 = t29 & t38;
-//     t40 = t25 ^ t39;
-
-//     t41 = t40 ^ t37;
-//     t42 = t29 ^ t33;
-//     t43 = t29 ^ t40;
-//     t44 = t33 ^ t37;
-//     t45 = t42 ^ t41;
-//     z0 = t44 & y15;
-//     z1 = t37 & y6;
-//     z2 = t33 & x7;
-//     z3 = t43 & y16;
-//     z4 = t40 & y1;
-//     z5 = t29 & y7;
-//     z6 = t42 & y11;
-//     z7 = t45 & y17;
-//     z8 = t41 & y10;
-//     z9 = t44 & y12;
-//     z10 = t37 & y3;
-//     z11 = t33 & y4;
-//     z12 = t43 & y13;
-//     z13 = t40 & y5;
-//     z14 = t29 & y2;
-//     z15 = t42 & y9;
-//     z16 = t45 & y14;
-//     z17 = t41 & y8;
-
-//     /*
-//      * Bottom linear transformation.
-//      */
-//     t46 = z15 ^ z16;
-//     t47 = z10 ^ z11;
-//     t48 = z5 ^ z13;
-//     t49 = z9 ^ z10;
-//     t50 = z2 ^ z12;
-//     t51 = z2 ^ z5;
-//     t52 = z7 ^ z8;
-//     t53 = z0 ^ z3;
-//     t54 = z6 ^ z7;
-//     t55 = z16 ^ z17;
-//     t56 = z12 ^ t48;
-//     t57 = t50 ^ t53;
-//     t58 = z4 ^ t46;
-//     t59 = z3 ^ t54;
-//     t60 = t46 ^ t57;
-//     t61 = z14 ^ t57;
-//     t62 = t52 ^ t58;
-//     t63 = t49 ^ t58;
-//     t64 = z4 ^ t59;
-//     t65 = t61 ^ t62;
-//     t66 = z1 ^ t63;
-//     s0 = t59 ^ t63;
-//     s6 = t56 ^ t62.not();
-//     s7 = t48 ^ t60.not();
-//     t67 = t64 ^ t65;
-//     s3 = t53 ^ t66;
-//     s4 = t51 ^ t66;
-//     s5 = t47 ^ t65;
-//     s1 = t64 ^ s3.not();
-//     s2 = t55 ^ t67.not();
-
-//     q[7] = s0;
-//     q[6] = s1;
-//     q[5] = s2;
-//     q[4] = s3;
-//     q[3] = s4;
-//     q[2] = s5;
-//     q[1] = s6;
-//     q[0] = s7;
-// }
 
 fn swapn_u32(cl: u32, ch: u32, s: usize, x: u32, y: &mut u32) -> u32 
 {
@@ -691,80 +512,79 @@ fn mix_columns(q: &mut [u64])
 
 pub fn interleave_constant(out: &mut[u64], input: &[u8])
 {
-    let mut tmp_32_constant = [0u32; 16];
+  let mut tmp_32_constant = [0u32; 16];
 
-    br_range_dec32le(&mut tmp_32_constant, 16, input);
-    for i in 0..4  {
-      let mut q1_tmp =  out[i + 4];
-        br_aes_ct64_interleave_in(&mut out[i], &mut q1_tmp, &mut tmp_32_constant[(i << 2)..]);
-        out[i + 4] = q1_tmp;
-      }
-    br_aes_ct64_ortho(out);
+  br_range_dec32le(&mut tmp_32_constant, 16, input);
+  for i in 0..4  {
+    let mut q1_tmp =  out[i + 4];
+      br_aes_ct64_interleave_in(&mut out[i], &mut q1_tmp, &mut tmp_32_constant[(i << 2)..]);
+      out[i + 4] = q1_tmp;
+    }
+  br_aes_ct64_ortho(out);
 }
 
 pub fn interleave_constant32(out: &mut[u32], input: &[u8])
 {
-    for i in 0..4  {
-        out[2*i] = br_dec32le(&input[4*i..]);
-        out[2*i + 1] = br_dec32le(&input[4*i + 16..]);
-    }
-    br_aes_ct_ortho(out);
+  for i in 0..4  {
+    out[2*i] = br_dec32le(&input[4*i..]);
+    out[2*i + 1] = br_dec32le(&input[4*i + 16..]);
+  }
+  br_aes_ct_ortho(out);
 }
 
 pub fn tweak_constants(ctx: &mut SpxCtx)
 {
-    let mut buf = [0u8; 40*16];
+  let mut buf = [0u8; 40*16];
 
-    /* Use the standard constants to generate tweaked ones. */
-    ctx.tweaked512_rc64 = HARAKA512_RC64;
+  /* Use the standard constants to generate tweaked ones. */
+  ctx.tweaked512_rc64 = HARAKA512_RC64;
 
-    /* Constants for pk.seed */
-    haraka_S(&mut buf, 40*16, &ctx.pub_seed, SPX_N, &ctx);
-    for i in 0..10  {
-        interleave_constant32(&mut ctx.tweaked256_rc32[i], &buf[32*i..]);
-        interleave_constant(&mut ctx.tweaked512_rc64[i], &buf[64*i..]);
-    }
+  /* Constants for pk.seed */
+  haraka_S(&mut buf, 40*16, &ctx.pub_seed, SPX_N, &ctx);
+  for i in 0..10  {
+    interleave_constant32(&mut ctx.tweaked256_rc32[i], &buf[32*i..]);
+    interleave_constant(&mut ctx.tweaked512_rc64[i], &buf[64*i..]);
+  }
 }
 
-pub fn haraka_S_absorb(s: &mut[u8], m: &[u8], mut mlen: usize, p: u8, ctx: &SpxCtx)
+pub fn haraka_S_absorb(
+  s: &mut[u8], m: &[u8], mut mlen: usize, p: u8, ctx: &SpxCtx
+)
 {
-    // SPX_VLA(uint8_t, t, r);
-    let mut t = [0u8; HARAKAS_RATE];
-    let mut idx = 0usize;
-    while mlen >= HARAKAS_RATE {
-        /* XOR block to state */
-        for i in 0..HARAKAS_RATE  {
-            s[i] ^= m[idx+i];
-        }
-        haraka512_perm(s, ctx);
-        mlen -= HARAKAS_RATE;
-        idx += HARAKAS_RATE;
-    }
-
-    // for i in 0..HARAKAS_RATE  {
-    //     t[i] = 0;
-    // }
-
-    for i in 0..mlen  {
-        t[i] = m[idx + i];
-    }
-    t[mlen] = p;
-    t[HARAKAS_RATE - 1] |= 128;
+  // SPX_VLA(uint8_t, t, r);
+  let mut t = [0u8; HARAKAS_RATE];
+  let mut idx = 0usize;
+  while mlen >= HARAKAS_RATE {
+    /* XOR block to state */
     for i in 0..HARAKAS_RATE  {
-        s[i] ^= t[i];
+        s[i] ^= m[idx+i];
     }
+    haraka512_perm(s, ctx);
+    mlen -= HARAKAS_RATE;
+    idx += HARAKAS_RATE;
+  }
+  
+  for i in 0..mlen  {
+    t[i] = m[idx + i];
+  }
+
+  t[mlen] = p;
+  t[HARAKAS_RATE - 1] |= 128;
+  for i in 0..HARAKAS_RATE  {
+    s[i] ^= t[i];
+  }
 }
 
-pub fn haraka_S_squeezeblocks(h: &mut[u8], mut nblocks: usize,
-                                   s: &mut[u8], r: usize,
-                                   ctx: &SpxCtx)
+pub fn haraka_S_squeezeblocks(
+  h: &mut[u8], mut nblocks: usize, s: &mut[u8], r: usize, ctx: &SpxCtx
+)
 {
   let mut idx = 0usize;
     while nblocks > 0 {
-        haraka512_perm(s, ctx);
-        h[idx..idx+HARAKAS_RATE].copy_from_slice(&s[..HARAKAS_RATE]);
-        idx += r;
-        nblocks -= 1;
+      haraka512_perm(s, ctx);
+      h[idx..idx+HARAKAS_RATE].copy_from_slice(&s[..HARAKAS_RATE]);
+      idx += r;
+      nblocks -= 1;
     }
 }
 
@@ -772,42 +592,37 @@ pub fn haraka_S_squeezeblocks(h: &mut[u8], mut nblocks: usize,
 pub fn haraka_S_inc_init(s_inc: &mut [u8])
 {
   s_inc.fill(0);
-    // for i in 0..64  {
-    //     s_inc[i] = 0;
-    // }
-    // s_inc[64] = 0;
 }
 
 pub fn haraka_S_inc_absorb(s_inc: &mut[u8], m: &[u8], mut mlen: usize, ctx: &SpxCtx)
 {
-    let mut idx = 0usize;
-    /* Recall that s_inc[64] is the non-absorbed bytes xored into the state */
-    while mlen + s_inc[64] as usize >= HARAKAS_RATE {
-      for i in 0..HARAKAS_RATE - s_inc[64] as usize {
-            /* Take the i'th byte from message
-               xor with the s_inc[64] + i'th byte of the state */
-            s_inc[s_inc[64] as usize + i] ^= m[idx + i];
-        }
-        mlen -= HARAKAS_RATE - s_inc[64] as usize;
-        idx += HARAKAS_RATE - s_inc[64] as usize;
-        s_inc[64] = 0;
-
-        haraka512_perm(s_inc, ctx);
+  let mut idx = 0usize;
+  /* Recall that s_inc[64] is the non-absorbed bytes xored into the state */
+  while mlen + s_inc[64] as usize >= HARAKAS_RATE {
+    for i in 0..HARAKAS_RATE - s_inc[64] as usize {
+      /* Take the i'th byte from message xor with the s_inc[64] + i'th byte of the state */
+      s_inc[s_inc[64] as usize + i] ^= m[idx + i];
     }
+    mlen -= HARAKAS_RATE - s_inc[64] as usize;
+    idx += HARAKAS_RATE - s_inc[64] as usize;
+    s_inc[64] = 0;
 
-    for i in 0..mlen  {
-        s_inc[s_inc[64] as usize + i] ^= m[idx + i];
-    }
-    s_inc[64] += mlen as u8;
+    haraka512_perm(s_inc, ctx);
+  }
+
+  for i in 0..mlen  {
+    s_inc[s_inc[64] as usize + i] ^= m[idx + i];  
+  }
+  s_inc[64] += mlen as u8;
 }
 
 pub fn haraka_S_inc_finalize(s_inc: &mut[u8])
 {
-    /* After haraka_S_inc_absorb, we are guaranteed that s_inc[64] < HARAKAS_RATE,
-       so we can always use one more byte for p in the current state. */
-    s_inc[s_inc[64] as usize] ^= 0x1F;
-    s_inc[HARAKAS_RATE - 1] ^= 128;
-    s_inc[64] = 0;
+  /* After haraka_S_inc_absorb, we are guaranteed that s_inc[64] < HARAKAS_RATE,
+      so we can always use one more byte for p in the current state. */
+  s_inc[s_inc[64] as usize] ^= 0x1F;
+  s_inc[HARAKAS_RATE - 1] ^= 128;
+  s_inc[64] = 0;
 }
 
 pub fn haraka_S_inc_squeeze(
@@ -815,160 +630,160 @@ pub fn haraka_S_inc_squeeze(
 )
 {
 
-    /* First consume any bytes we still have sitting around */
-    let mut i = 0usize;
-    let mut idx = 0usize;
-    while i < outlen && i < s_inc[64] as usize {
-        /* There are s_inc[64] bytes left, so r - s_inc[64] is the first
-           available byte. We consume from there, i.e., up to r. */
-        out[i] = s_inc[(HARAKAS_RATE - s_inc[64] as usize + i)];
+  /* First consume any bytes we still have sitting around */
+  let mut i = 0usize;
+  let mut idx = 0usize;
+  while i < outlen && i < s_inc[64] as usize {
+    /* There are s_inc[64] bytes left, so r - s_inc[64] is the first
+      available byte. We consume from there, i.e., up to r. */
+    out[i] = s_inc[(HARAKAS_RATE - s_inc[64] as usize + i)];
     i += 1;
+  }
+  idx += i;
+  outlen -= i;
+  s_inc[64] -= i as u8;
+
+  /* Then squeeze the remaining necessary blocks */
+  while outlen > 0 {
+    haraka512_perm(s_inc, ctx);
+    i = 0usize;
+    while i < outlen && i < HARAKAS_RATE {
+      out[idx + i] = s_inc[i];
+      i += 1;
     }
     idx += i;
     outlen -= i;
-    s_inc[64] -= i as u8;
-
-    /* Then squeeze the remaining necessary blocks */
-    while outlen > 0 {
-        haraka512_perm(s_inc, ctx);
-        i = 0usize;
-        while i < outlen && i < HARAKAS_RATE {
-            out[idx + i] = s_inc[i];
-            i += 1;
-        }
-        idx += i;
-        outlen -= i;
-        s_inc[64] = (HARAKAS_RATE - i) as u8;
-    }
+    s_inc[64] = (HARAKAS_RATE - i) as u8;
+  }
 }
 
-pub fn haraka_S(out: &mut[u8], outlen: usize,
-              input: &[u8], inlen: usize,
-              ctx: &SpxCtx)
+pub fn haraka_S(
+  out: &mut[u8], outlen: usize, input: &[u8], inlen: usize, ctx: &SpxCtx
+)
 {
-    let mut s = [0u8; 64];
-    let mut d = [0u8; 32];
-    let mut idx = 0usize;
-    haraka_S_absorb(&mut s, input, inlen, 0x1F, ctx);
+  let mut s = [0u8; 64];
+  let mut d = [0u8; 32];
+  let mut idx = 0usize;
+  haraka_S_absorb(&mut s, input, inlen, 0x1F, ctx);
 
-    haraka_S_squeezeblocks(out, outlen / 32, &mut s, 32, ctx);
-    idx += (outlen / 32) * 32;
+  haraka_S_squeezeblocks(out, outlen / 32, &mut s, 32, ctx);
+  idx += (outlen / 32) * 32;
 
-    if outlen % 32 != 0 {
-        haraka_S_squeezeblocks(&mut d, 1, &mut s, 32, ctx);
-        for i in 0..outlen % 32 {
-            out[idx + i] = d[i];
-        }
+  if outlen % 32 != 0 {
+    haraka_S_squeezeblocks(&mut d, 1, &mut s, 32, ctx);
+    for i in 0..outlen % 32 {
+      out[idx + i] = d[i];
     }
+  }
 }
 
 pub fn haraka512_perm(out: &mut[u8], ctx: &SpxCtx)
 {
   let mut tmp_q;
-    let mut w = [0u32; 16];
-    let mut q = [0u64; 8];
+  let mut w = [0u32; 16];
+  let mut q = [0u64; 8];
 
-    br_range_dec32le(&mut w, 16, &out);
-    for i in 0..4  {
-        tmp_q = q[i + 4];
-        br_aes_ct64_interleave_in(&mut q[i], &mut tmp_q, &w[(i << 2)..]);
-        q[i + 4] = tmp_q;
-      }
-    br_aes_ct64_ortho(&mut q);
-
-    /* AES rounds */
-    for i in 0..5  {
-        for j in 0..2  {
-          br_aes_ct64_bitslice_sbox(&mut q);
-            shift_rows(&mut q);
-            mix_columns(&mut q);
-            add_round_key(&mut q, &ctx.tweaked512_rc64[2*i + j]);
-        }
-        /* Mix states */
-        for j in 0..8  {
-            tmp_q = q[j];
-            q[j] = (tmp_q & 0x0001000100010001) << 5 |
-                   (tmp_q & 0x0002000200020002) << 12 | 
-                   (tmp_q & 0x0004000400040004) >> 1 | 
-                   (tmp_q & 0x0008000800080008) << 6 | 
-                   (tmp_q & 0x0020002000200020) << 9 | 
-                   (tmp_q & 0x0040004000400040) >> 4 | 
-                   (tmp_q & 0x0080008000800080) << 3 | 
-                   (tmp_q & 0x2100210021002100) >> 5 |
-                   (tmp_q & 0x0210021002100210) << 2 | 
-                   (tmp_q & 0x0800080008000800) << 4 | 
-                   (tmp_q & 0x1000100010001000) >> 12 | 
-                   (tmp_q & 0x4000400040004000) >> 10 | 
-                   (tmp_q & 0x8400840084008400) >> 3;
-        }
+  br_range_dec32le(&mut w, 16, &out);
+  for i in 0..4  {
+    tmp_q = q[i + 4];
+    br_aes_ct64_interleave_in(&mut q[i], &mut tmp_q, &w[(i << 2)..]);
+    q[i + 4] = tmp_q;
     }
+  br_aes_ct64_ortho(&mut q);
 
-    br_aes_ct64_ortho(&mut q);
-    for i in 0..4 {
-        br_aes_ct64_interleave_out(&mut w[(i << 2)..], q[i], q[i + 4]);
+  /* AES rounds */
+  for i in 0..5  {
+    for j in 0..2  {
+      br_aes_ct_bitslice_sbox(&mut q);
+      shift_rows(&mut q);
+      mix_columns(&mut q);
+      add_round_key(&mut q, &ctx.tweaked512_rc64[2*i + j]);
     }
-    br_range_enc32le(out, &w, 16);
+    /* Mix states */
+    for j in 0..8  {
+      tmp_q = q[j];
+      q[j] =  (tmp_q & 0x0001000100010001) << 5  |
+              (tmp_q & 0x0002000200020002) << 12 | 
+              (tmp_q & 0x0004000400040004) >> 1  | 
+              (tmp_q & 0x0008000800080008) << 6  | 
+              (tmp_q & 0x0020002000200020) << 9  | 
+              (tmp_q & 0x0040004000400040) >> 4  | 
+              (tmp_q & 0x0080008000800080) << 3  | 
+              (tmp_q & 0x2100210021002100) >> 5  |
+              (tmp_q & 0x0210021002100210) << 2  | 
+              (tmp_q & 0x0800080008000800) << 4  | 
+              (tmp_q & 0x1000100010001000) >> 12 | 
+              (tmp_q & 0x4000400040004000) >> 10 | 
+              (tmp_q & 0x8400840084008400) >> 3;
+    }
+  }
+
+  br_aes_ct64_ortho(&mut q);
+  for i in 0..4 {
+    br_aes_ct64_interleave_out(&mut w[(i << 2)..], q[i], q[i + 4]);
+  }
+  br_range_enc32le(out, &w, 16);
 }
 
 pub fn haraka512(out: &mut[u8], input: &[u8], ctx: &SpxCtx)
 {
-    let mut buf = [0u8;64];
-    buf.clone_from_slice(&input);
+  let mut buf = [0u8;64];
+  buf.clone_from_slice(&input);
 
-    haraka512_perm(&mut buf, ctx);
-    /* Feed-forward */
-    for i in 0..64  {
-        buf[i] ^= input[i];
-    }
+  haraka512_perm(&mut buf, ctx);
+  /* Feed-forward */
+  for i in 0..64  {
+    buf[i] ^= input[i];
+  }
 
-    /* Truncated */
-    out[..8].copy_from_slice(&buf[8..16]);
-    out[8..16].copy_from_slice(&buf[24..32]);
-    out[16..24].copy_from_slice(&buf[32..40]);
-    out[24..32].copy_from_slice(&buf[48..56]);
+  /* Truncated */
+  out[..8].copy_from_slice(&buf[8..16]);
+  out[8..16].copy_from_slice(&buf[24..32]);
+  out[16..24].copy_from_slice(&buf[32..40]);
+  out[24..32].copy_from_slice(&buf[48..56]);
 }
 
 
 pub fn haraka256(out: &mut[u8], input: &[u8],
         ctx: &SpxCtx)
 {
-    let mut q = [0u32; 8];
-    let mut tmp_q = 0u32;
-    for i in 0..4  {
-        q[2*i] = br_dec32le(&input[4*i..]);
-        q[2*i + 1] = br_dec32le(&input[4*i + 16..]);
-    }
-    br_aes_ct_ortho(&mut q);
+  let mut q = [0u32; 8];
+  let mut tmp_q = 0u32;
+  for i in 0..4  {
+    q[2*i] = br_dec32le(&input[4*i..]);
+    q[2*i + 1] = br_dec32le(&input[4*i + 16..]);
+  }
+  br_aes_ct_ortho(&mut q);
 
-    /* AES rounds */
-    for i in 0..5  {
-        for j in 0..2  {
-            br_aes_ct64_bitslice_sbox(&mut q);
-            shift_rows32(&mut q);
-            mix_columns32(&mut q);
-            add_round_key32(&mut q, &ctx.tweaked256_rc32[2*i + j]);
-        }
-
-        /* Mix states */
-        for j in 0..8  {
-            tmp_q = q[j];
-            q[j] = (tmp_q & 0x81818181) |
-                   (tmp_q & 0x02020202) << 1 |
-                   (tmp_q & 0x04040404) << 2 |
-                   (tmp_q & 0x08080808) << 3 |
-                   (tmp_q & 0x10101010) >> 3 |
-                   (tmp_q & 0x20202020) >> 2 |
-                   (tmp_q & 0x40404040) >> 1;
-        }
+  /* AES rounds */
+  for i in 0..5  {
+    for j in 0..2  {
+      br_aes_ct_bitslice_sbox(&mut q);
+      shift_rows32(&mut q);
+      mix_columns32(&mut q);
+      add_round_key32(&mut q, &ctx.tweaked256_rc32[2*i + j]);
     }
 
-    br_aes_ct_ortho(&mut q);
-    for i in 0..4  {
-        br_enc32le(&mut out[4*i..], q[2*i]);
-        br_enc32le(&mut out[4*i + 16..], q[2*i + 1]);
+    /* Mix states */
+    for j in 0..8  {
+      tmp_q = q[j];
+      q[j] =  (tmp_q & 0x81818181) |
+              (tmp_q & 0x02020202) << 1 |
+              (tmp_q & 0x04040404) << 2 |
+              (tmp_q & 0x08080808) << 3 |
+              (tmp_q & 0x10101010) >> 3 |
+              (tmp_q & 0x20202020) >> 2 |
+              (tmp_q & 0x40404040) >> 1;
     }
+  }
 
-    for i in 0..32  {
-        out[i] ^= input[i];
-    }
+  br_aes_ct_ortho(&mut q);
+  for i in 0..4  {
+    br_enc32le(&mut out[4*i..], q[2*i]);
+    br_enc32le(&mut out[4*i + 16..], q[2*i + 1]);
+  }
+
+  for i in 0..32  {
+    out[i] ^= input[i];
+  }
 }
