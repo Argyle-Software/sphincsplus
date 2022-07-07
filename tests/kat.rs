@@ -7,30 +7,24 @@ const BUF1: &str = "SeedBufferGen";
 const BUF2: &str = "SeedBufferSign_sphincs-haraka-128f";
 
 
-// #[test]
-// pub fn keygen() {
-//   let mut basepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-//   let kats = load::kats(&mut basepath.clone(), FILENAME);
-//   let bufs = load::bufs(&mut basepath, BUF1);
-//   for (i, kat) in kats.iter().enumerate() {
-//     let pk = kat.pk.clone();
-//     let sk = kat.sk.clone();
-//     let mut pk2 = [0u8; CRYPTO_PUBLICKEYBYTES];
-//     let mut sk2 = [0u8; CRYPTO_SECRETKEYBYTES];
-//     crypto_sign_keypair(&mut pk2, &mut sk2,  Some(&bufs[i]));
-//     assert_eq!(pk, pk2);
-//     assert_eq!(sk, sk2);
-//   }
-// }
+#[test]
+pub fn keygen() {
+  let mut basepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+  let kats = load::kats(&mut basepath.clone(), FILENAME);
+  let bufs = load::bufs(&mut basepath, BUF1);
+  for (i, kat) in kats.iter().enumerate() {
+    let pk = kat.pk.clone();
+    let sk = kat.sk.clone();
+    let mut pk2 = [0u8; CRYPTO_PUBLICKEYBYTES];
+    let mut sk2 = [0u8; CRYPTO_SECRETKEYBYTES];
+    crypto_sign_keypair(&mut pk2, &mut sk2,  Some(&bufs[i]));
+    assert_eq!(pk, pk2);
+    assert_eq!(sk, sk2);
+  }
+}
 
 #[test]
 pub fn sign() {
-  dbg!(SPX_WOTS_LEN);
-  dbg!(SPX_WOTS_LEN1);
-  dbg!(SPX_WOTS_LEN2);
-  dbg!(SPX_WOTS_BYTES);
-  dbg!(SPX_WOTS_BYTES + SPX_TREE_HEIGHT * SPX_N);
-  dbg!(WOTS_SIG_LEN);
   let mut basepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
   let kats = load::kats(&mut basepath.clone(), FILENAME);
   let bufs = load::bufs(&mut basepath, BUF2);
@@ -48,18 +42,18 @@ pub fn sign() {
   }
 }
 
-// #[test]
-// pub fn sign_open() {
-//   let mut basepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-//   let kats = load::kats(&mut basepath, FILENAME);
-//   for kat in kats {
-//     let mut sm = kat.sm.clone();
-//     let smlen = kat.smlen as u64;
-//     let msg = kat.msg.clone();
-//     let mut mlen = kat.mlen as u64;
-//     let pk = kat.pk.clone();
-//     let mut msg2 = vec![0u8; CRYPTO_BYTES + mlen as usize];
-//     crypto_sign_open(&mut msg2, &mut mlen, &mut sm, smlen, &pk);
-//     assert_eq!(msg, msg2[..mlen as usize]);
-//   }
-// }
+#[test]
+pub fn sign_open() {
+  let mut basepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+  let kats = load::kats(&mut basepath, FILENAME);
+  for kat in kats {
+    let mut sm = kat.sm.clone();
+    let smlen = kat.smlen as u64;
+    let msg = kat.msg.clone();
+    let mut mlen = kat.mlen as u64;
+    let pk = kat.pk.clone();
+    let mut msg2 = vec![0u8; CRYPTO_BYTES + mlen as usize];
+    crypto_sign_open(&mut msg2, &mut mlen, &mut sm, smlen, &pk);
+    assert_eq!(msg, msg2[..mlen as usize]);
+  }
+}

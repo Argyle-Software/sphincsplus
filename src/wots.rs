@@ -1,11 +1,7 @@
 use crate::context::SpxCtx;
-use crate::thash_haraka_simple::thash;
-use crate::thash_haraka_simple::thash_inplace;
 use crate::utils::*;
-use crate::utilsx1::*;
 // use crate::hash::*;
-// use crate::thash::*;
-use crate::wotsx1::*;
+use crate::thash::*;
 use crate::address::*;
 use crate::params::*;
 
@@ -20,23 +16,22 @@ use crate::params::*;
  * Interprets in as start-th value of the chain.
  * addr has to contain the address of the chain.
  */
-pub fn gen_chain(out: &mut[u8], input: &[u8],
-            mut start: u32, steps: u32,
-            ctx: &SpxCtx, addr: &mut [u32; 8])
+pub fn gen_chain(
+  out: &mut[u8], input: &[u8], start: u32, 
+  steps: u32, ctx: &SpxCtx, addr: &mut [u32; 8]
+)
 {
 
-    /* Initialize out with the value at position 'start'. */
-    out[..SPX_N].copy_from_slice(&input[..SPX_N]);
+  /* Initialize out with the value at position 'start'. */
+  out[..SPX_N].copy_from_slice(&input[..SPX_N]);
 
-    /* Iterate 'steps' calls to the hash function. */
-    let mut i = 0;
-    while i < (start+steps) && i < SPX_WOTS_W as u32 {
-        set_hash_addr(addr, i);
-        let mut buf = [0u8; SPX_ADDR_BYTES + SPX_N];
-        // let tmp_out = out.clone();
-        thash_inplace(out, 1, ctx, *addr, &mut buf);
-        i += 1;
-    }
+  /* Iterate 'steps' calls to the hash function. */
+  let mut i = 0;
+  while i < (start+steps) && i < SPX_WOTS_W as u32 {
+    set_hash_addr(addr, i);
+    thash_inplace::<1>(out, ctx, *addr);
+    i += 1;
+  }
 }
 
 /**
@@ -46,47 +41,47 @@ pub fn gen_chain(out: &mut[u8], input: &[u8],
  */
 pub fn base_w(output: &mut[u32], out_len: u32, input: &[u8])
 {
-    let mut idx = 0;
-    let mut out = 0;
-    let mut total = 0u8;
-    let mut bits = 0;
+  let mut idx = 0;
+  let mut out = 0;
+  let mut total = 0u8;
+  let mut bits = 0;
 
-    for _ in 0..out_len {
-        if bits == 0 {
-            total = input[idx];
-            idx += 1;
-            bits += 8;
-        }
-        bits -= SPX_WOTS_LOGW;
-        output[out] = (((total >> bits) & (SPX_WOTS_W - 1) as u8)) as u32;
-        out += 1;
+  for _ in 0..out_len {
+    if bits == 0 {
+      total = input[idx];
+      idx += 1;
+      bits += 8;
     }
+    bits -= SPX_WOTS_LOGW;
+    output[out] = (((total >> bits) & (SPX_WOTS_W - 1) as u8)) as u32;
+    out += 1;
+  }
 }
 
 /* Computes the WOTS+ checksum over a message (in base_w). */
 pub fn wots_checksum(csum_base_w: &mut[u32])
 {
-    let mut csum =  0u32;
-    let mut csum_bytes = [0u8; (SPX_WOTS_LEN2 * SPX_WOTS_LOGW + 7) / 8];
+  let mut csum =  0u32;
+  let mut csum_bytes = [0u8; (SPX_WOTS_LEN2 * SPX_WOTS_LOGW + 7) / 8];
 
-    /* Compute checksum. */
-    for i in 0..SPX_WOTS_LEN1  {
-        csum += SPX_WOTS_W as u32 - 1 - csum_base_w[i] as u32;
-    }
+  /* Compute checksum. */
+  for i in 0..SPX_WOTS_LEN1  {
+    csum += SPX_WOTS_W as u32 - 1 - csum_base_w[i] as u32;
+  }
 
-    /* Convert checksum to base_w. */
-    /* Make sure expected empty zero bits are the least significant bits. */
-    csum = csum << ((8 - ((SPX_WOTS_LEN2 * SPX_WOTS_LOGW) % 8)) % 8);
-    let csum_sizeof = csum_bytes.len();
-    ull_to_bytes(&mut csum_bytes, csum_sizeof, csum as u64);
-    base_w(&mut csum_base_w[SPX_WOTS_LEN1..], SPX_WOTS_LEN2 as u32, &csum_bytes);
+  /* Convert checksum to base_w. */
+  /* Make sure expected empty zero bits are the least significant bits. */
+  csum = csum << ((8 - ((SPX_WOTS_LEN2 * SPX_WOTS_LOGW) % 8)) % 8);
+  let csum_sizeof = csum_bytes.len();
+  ull_to_bytes(&mut csum_bytes, csum_sizeof, csum as u64);
+  base_w(&mut csum_base_w[SPX_WOTS_LEN1..], SPX_WOTS_LEN2 as u32, &csum_bytes);
 }
 
 /* Takes a message and derives the matching chain lengths. */
 pub fn chain_lengths(lengths: &mut[u32], msg: &[u8])
 {
-    base_w(lengths, SPX_WOTS_LEN1 as u32, msg);
-    wots_checksum(lengths);
+  base_w(lengths, SPX_WOTS_LEN1 as u32, msg);
+  wots_checksum(lengths);
 }
 
 /**

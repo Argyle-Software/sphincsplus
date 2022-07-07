@@ -4,15 +4,14 @@
 
 // use crate::api::*;
 use crate::context::SpxCtx;
-use crate::hash_haraka::gen_message_random;
-use crate::hash_haraka::hash_message;
-use crate::hash_haraka::initialize_hash_function;
+// use crate::hash_haraka::gen_message_random;
+// use crate::hash_haraka::hash_message;
+// use crate::hash_haraka::initialize_hash_function;
 use crate::params::*;
-use crate::thash_haraka_simple::thash;
 use crate::wots::*;
 use crate::fors::*;
-// use crate::hash::*;
-// use crate::thash::*;
+use crate::hash::*;
+use crate::thash::*;
 use crate::address::*;
 // use crate::randombytes::*;
 use crate::utils::*;
@@ -204,8 +203,7 @@ pub fn crypto_sign_verify(sig: &mut[u8], mlen: usize, pk: &[u8]) -> i32
         idx += SPX_WOTS_BYTES;
 
         /* Compute the leaf node using the WOTS public key. */
-        let mut buf = [0u8; SPX_ADDR_BYTES + SPX_WOTS_LEN * SPX_N];
-        thash(&mut leaf, &wots_pk, SPX_WOTS_LEN as u32, &mut buf, &ctx, wots_pk_addr);
+        thash::<SPX_WOTS_LEN>(&mut leaf, &wots_pk, &ctx, wots_pk_addr);
 
         /* Compute the root node of this subtree. */
         compute_root(&mut root, &leaf, idx_leaf, 0, &sig[idx..], SPX_TREE_HEIGHT as u32,
@@ -266,7 +264,9 @@ pub fn crypto_sign_open(m: &mut[u8], mlen: &mut u64, sm: &mut [u8], smlen: u64, 
     }
 
     /* If verification was successful, move the message to the right place. */
-    m[..].copy_from_slice(&sm[SPX_BYTES..*mlen as usize + SPX_BYTES]);
+    let end = *mlen as usize + SPX_BYTES;
+    let end2 = *mlen;
+    m[..end2 as usize].copy_from_slice(&sm[SPX_BYTES..end]);
 
     return 0;
 }

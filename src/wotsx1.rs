@@ -1,12 +1,6 @@
-use std::ops::Not;
-
 use crate::context::SpxCtx;
-use crate::hash_haraka::prf_addr;
-use crate::thash_haraka_simple::thash;
-use crate::utils::*;
-// use crate::hash::*;
-// use crate::thash::*;
-use crate::wots::*;
+use crate::hash::*;
+use crate::thash::*;
 use crate::address::*;
 use crate::params::*;
 
@@ -100,9 +94,8 @@ pub fn wots_gen_leafx1(
             /* Iterate one step on the chain */
             set_hash_addr(&mut leaf_addr, k);
 
-            let mut buf = [0u8; SPX_ADDR_BYTES + SPX_N]; // TODO: move out of loop
             let mut tmp_buffer = &pk_buffer.clone();
-            thash(&mut pk_buffer[idx..], &tmp_buffer[idx..], 1, &mut buf, ctx, leaf_addr);
+            thash::<1>(&mut pk_buffer[idx..], &tmp_buffer[idx..], ctx, leaf_addr);
 
             k += 1;
         }
@@ -110,6 +103,5 @@ pub fn wots_gen_leafx1(
     }
 
     /* Do the final thash to generate the public keys */
-    let mut buf = [0u8; SPX_ADDR_BYTES + SPX_WOTS_LEN * SPX_N];
-    thash(dest, &pk_buffer, SPX_WOTS_LEN as u32, &mut buf, ctx, pk_addr);
+    thash::<SPX_WOTS_LEN>(dest, &pk_buffer, ctx, pk_addr);
 }
