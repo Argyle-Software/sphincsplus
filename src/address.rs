@@ -21,18 +21,12 @@ fn get_addr(addr: &[u32], offset: usize) -> u32 {
   addr[offset / 4] >> offset % 4 * 8
 }
 
-// fn set_addr64(addr: &mut[u32], offset: usize, value: u64) 
-// {
-//   let set = value << (offset % 4 * 8);
-//   addr[offset / 4 ] += set; //TODO: Check 
-// }
-
 /*
  * Specify which level of Merkle tree (the "layer") we're working on
  */
 pub fn set_layer_addr(addr: &mut [u32], layer: u32)
 { 
-  set_addr(addr, SPX_OFFSET_LAYER, layer)
+  set_addr(addr, SPX_OFFSET_LAYER, layer);
 }
 
 /*
@@ -40,21 +34,10 @@ pub fn set_layer_addr(addr: &mut [u32], layer: u32)
  */
 pub fn set_tree_addr(addr: &mut [u32], tree: u64)
 {
-// if (SPX_TREE_HEIGHT * (SPX_D - 1)) > 64 {
-//   // compile_error!("Subtree addressing is currently limited to at most 2^64 trees");  
-// }
-  // let mut buf = [0u8; 32];
-  // for i in 0..8 {
-  //   buf[..i*4].copy_from_slice(&addr[i].to_ne_bytes());
-  // }
   let be64 = tree.to_be_bytes();
   let mut tmp_addr = address_to_bytes(&addr);
   tmp_addr[SPX_OFFSET_TREE..SPX_OFFSET_TREE+8].copy_from_slice(&be64);
   bytes_to_address(addr, &tmp_addr);
-
-    // for i in 0..8 {
-    //   addr[i] = u32::from_ne_bytes(buf[i*4..(i+1)*4].try_into().expect("bytes into u32"));
-    // }
 }
 
 /*
@@ -65,9 +48,7 @@ pub fn set_tree_addr(addr: &mut [u32], tree: u64)
  */
 pub fn set_type(addr: &mut [u32], addr_type: u32)
 {
-  let mut tmp_addr = address_to_bytes(&addr);
-  tmp_addr[SPX_OFFSET_TYPE] = addr_type as u8;
-  bytes_to_address(addr, &tmp_addr);
+  set_addr(addr, SPX_OFFSET_TYPE, addr_type);
 }
 
 /*
@@ -87,15 +68,12 @@ pub fn copy_subtree_addr(out: &mut [u32], input: &mut [u32])
  */
 pub fn set_keypair_addr(addr: &mut [u32], keypair: u32)
 {
-  let mut tmp_addr = address_to_bytes(&addr);
   /* We have > 256 OTS at the bottom of the Merkle tree; to specify */
   /* which one, we'd need to express it input two bytes */
   if SPX_FULL_HEIGHT/SPX_D > 8 {
-    tmp_addr[SPX_OFFSET_KP_ADDR2] = (keypair >> 8) as u8; //TODO: Check
-    
+    set_addr(addr, SPX_OFFSET_KP_ADDR2, keypair >> 8);
   }
-  tmp_addr[SPX_OFFSET_KP_ADDR1] = keypair as u8;
-  bytes_to_address(addr, &tmp_addr);
+  set_addr(addr, SPX_OFFSET_KP_ADDR1, keypair);
 }
 
 /*
@@ -112,7 +90,6 @@ pub fn copy_keypair_addr(out: &mut [u32], input: &mut [u32])
   }
    let value = get_addr(input, SPX_OFFSET_KP_ADDR1);
    set_addr(out, SPX_OFFSET_KP_ADDR1, value)
-    // out[SPX_OFFSET_KP_ADDR1] = input[SPX_OFFSET_KP_ADDR1];
 }
 
 /*
@@ -121,9 +98,7 @@ pub fn copy_keypair_addr(out: &mut [u32], input: &mut [u32])
  */
 pub fn set_chain_addr(addr: &mut [u32], chain: u32)
 {
-  let mut tmp_addr = address_to_bytes(&addr);
-  tmp_addr[SPX_OFFSET_CHAIN_ADDR] = chain as u8;
-  bytes_to_address(addr, &tmp_addr);
+  set_addr(addr, SPX_OFFSET_CHAIN_ADDR, chain);
 }
 
 /*
@@ -133,9 +108,6 @@ pub fn set_chain_addr(addr: &mut [u32], chain: u32)
 pub fn set_hash_addr(addr: &mut [u32], hash: u32)
 {
   set_addr(addr, SPX_OFFSET_HASH_ADDR, hash);
-  // let mut tmp_addr = address_to_bytes(&addr);
-  // tmp_addr[SPX_OFFSET_HASH_ADDR] = hash as u8;
-  // bytes_to_address(addr, &tmp_addr);
 }
 
 /* These functions are used for all hash tree addresses (including FORS). */
@@ -146,9 +118,7 @@ pub fn set_hash_addr(addr: &mut [u32], hash: u32)
  */
 pub fn set_tree_height(addr: &mut [u32], tree_height: u32)
 {
-  let mut tmp_addr = address_to_bytes(&addr);
-  tmp_addr[SPX_OFFSET_TREE_HGT] = tree_height as u8;
-  bytes_to_address(addr, &tmp_addr);
+  set_addr(addr, SPX_OFFSET_TREE_HGT, tree_height);
 }
 
 /*
@@ -160,22 +130,4 @@ pub fn set_tree_index(addr: &mut [u32], tree_index: u32)
   let mut tmp_addr = address_to_bytes(&addr);
   u32_to_bytes(&mut tmp_addr[SPX_OFFSET_TREE_INDEX..], tree_index);
   bytes_to_address(addr, &tmp_addr);
-}
-
-fn bytes_to_address(addr: &mut[u32], bytes: &[u8])
-{
-  for i in 0..8 {
-    let mut addr_i = [0u8; 4];
-    addr_i.copy_from_slice(&bytes[i*4..i*4+4]);
-    addr[i] = u32::from_ne_bytes(addr_i);
-  }
-}
-
-pub fn address_to_bytes(addr: &[u32]) -> [u8; 32] 
-{
-  let mut tmp_addr = [0u8; 32];
-  for i in 0..8 {
-    tmp_addr[i*4..i*4+4].copy_from_slice(&addr[i].to_ne_bytes());
-  }
-  tmp_addr
 }
