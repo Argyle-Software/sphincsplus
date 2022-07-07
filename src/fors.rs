@@ -1,28 +1,23 @@
-use crate::context::{SpxCtx, Info};
+use crate::context::SpxCtx;
 use crate::utils::*;
 use crate::utilsx1::*;
-// use crate::hash::*;
-// use crate::thash::*;
 use crate::address::*;
 use crate::params::*;
-
-use crate::hash_haraka::*;
-use crate::thash_haraka_simple::{thash, thash_inplace};
+use crate::hash::*;
+use crate::thash::*;
 
 const STACK_LEN: usize = SPX_FORS_HEIGHT * SPX_N;
 
-pub fn fors_gen_sk(sk: &mut[u8], ctx: &SpxCtx,
-                        fors_leaf_addr: &mut [u32; 8])
+pub fn fors_gen_sk(sk: &mut[u8], ctx: &SpxCtx, fors_leaf_addr: &mut [u32; 8])
 {
     prf_addr(sk, ctx, fors_leaf_addr);
 }
 
-pub fn fors_sk_to_leaf(leaf: &mut[u8], sk: &[u8],
-                            ctx: &SpxCtx,
-                            fors_leaf_addr: &mut [u32; 8])
+pub fn fors_sk_to_leaf(
+  leaf: &mut[u8], sk: &[u8], ctx: &SpxCtx, fors_leaf_addr: &mut [u32; 8]
+)
 {
-  let mut buf = [0u8; SPX_ADDR_BYTES+ SPX_FORS_TREES * SPX_N];
-  thash(leaf, sk, 1, &mut buf, ctx, *fors_leaf_addr);
+  thash::<1>(leaf, sk, ctx, *fors_leaf_addr);
 }
 
 #[derive(Clone, Copy)]
@@ -37,10 +32,8 @@ impl Default for ForsGenLeafInfo {
 }
 
 pub fn fors_gen_leafx1(
-  leaf: &mut[u8],
-  ctx: &SpxCtx,
-  addr_idx: u32, 
-  info: &mut ForsGenLeafInfo)
+  leaf: &mut[u8], ctx: &SpxCtx, addr_idx: u32, info: &mut ForsGenLeafInfo
+)
 {
   let mut fors_leaf_addr = info.leaf_addrx;
   
@@ -51,9 +44,7 @@ pub fn fors_gen_leafx1(
 
   set_type(&mut fors_leaf_addr, SPX_ADDR_TYPE_FORSTREE as u32);
 
-  let mut buf = [0u8; SPX_ADDR_BYTES + SPX_N];
-  thash_inplace(leaf, 1, ctx, fors_leaf_addr, &mut buf);
-  // fors_sk_to_leaf(leaf, &tmp_leaf , ctx, &mut fors_leaf_addr);
+  thash_inplace::<1>(leaf, ctx, fors_leaf_addr);
 }
 
 /**
@@ -63,65 +54,63 @@ pub fn fors_gen_leafx1(
  */
 pub fn message_to_indices(indices: &mut[u32], m: &[u8])
 {
-    let mut offset = 0;
+  let mut offset = 0;
 
-    for i in 0..SPX_FORS_TREES  {
-        indices[i] = 0;
-        for j in 0..SPX_FORS_HEIGHT  {
-            indices[i] ^= (((m[offset >> 3] >> (offset & 0x7)) & 0x1) << j) as u32;
-            offset += 1;
-        }
+  for i in 0..SPX_FORS_TREES  {
+    indices[i] = 0;
+    for j in 0..SPX_FORS_HEIGHT  {
+      indices[i] ^= (((m[offset >> 3] >> (offset & 0x7)) & 0x1) << j) as u32;
+      offset += 1;
     }
+  }
 }
 
 /**
  * Signs a message m, deriving the secret key from sk_seed and the FTS address.
  * Assumes m contains at least SPX_FORS_HEIGHT * SPX_FORS_TREES bits.
  */
-pub fn fors_sign(sig: &mut[u8], pk: &mut[u8],
-               m: &[u8],
-               ctx: &SpxCtx,
-               fors_addr: &mut [u32; 8])
+pub fn fors_sign(
+  sig: &mut[u8], pk: &mut[u8], m: &[u8], ctx: &SpxCtx, fors_addr: &mut [u32; 8]
+)
 {
-    let mut indices = [0u32; SPX_FORS_TREES];
-    let mut roots = [0u8; SPX_FORS_TREES * SPX_N];
-    let mut fors_tree_addr = [0u32; 8];
-    let mut fors_info = ForsGenLeafInfo::default();
-    // let mut fors_leaf_addr = fors_info.leaf_addrx;
-    let mut fors_pk_addr = [0u32; 8];
-    let mut idx_offset;
+  let mut indices = [0u32; SPX_FORS_TREES];
+  let mut roots = [0u8; SPX_FORS_TREES * SPX_N];
+  let mut fors_tree_addr = [0u32; 8];
+  let mut fors_info = ForsGenLeafInfo::default();
+  let mut fors_pk_addr = [0u32; 8];
+  let mut idx_offset;
 
-    copy_keypair_addr(&mut fors_tree_addr, fors_addr);
-    copy_keypair_addr(&mut fors_info.leaf_addrx, fors_addr);
+  copy_keypair_addr(&mut fors_tree_addr, fors_addr);
+  copy_keypair_addr(&mut fors_info.leaf_addrx, fors_addr);
 
-    copy_keypair_addr(&mut fors_pk_addr, fors_addr);
-    set_type(&mut fors_pk_addr, SPX_ADDR_TYPE_FORSPK as u32);
+  copy_keypair_addr(&mut fors_pk_addr, fors_addr);
+  set_type(&mut fors_pk_addr, SPX_ADDR_TYPE_FORSPK as u32);
 
-    message_to_indices(&mut indices, m);
-    let mut idx = 0usize;
-    for i in 0..SPX_FORS_TREES  {
-        idx_offset = (i * (1 << SPX_FORS_HEIGHT)) as u32;
+  message_to_indices(&mut indices, m);
+  let mut idx = 0usize;
+  for i in 0..SPX_FORS_TREES  {
+    idx_offset = (i * (1 << SPX_FORS_HEIGHT)) as u32;
 
-        set_tree_height(&mut fors_tree_addr, 0);
-        set_tree_index(&mut fors_tree_addr, indices[i] + idx_offset);
-        set_type(&mut fors_tree_addr, SPX_ADDR_TYPE_FORSPRF as u32);
+    set_tree_height(&mut fors_tree_addr, 0);
+    set_tree_index(&mut fors_tree_addr, indices[i] + idx_offset);
+    set_type(&mut fors_tree_addr, SPX_ADDR_TYPE_FORSPRF as u32);
 
-        /* Include the secret key part that produces the selected leaf node. */
-        fors_gen_sk(&mut sig[idx..], ctx, &mut fors_tree_addr);
-        set_type(&mut fors_tree_addr, SPX_ADDR_TYPE_FORSTREE as u32);
-        idx += SPX_N;
+    /* Include the secret key part that produces the selected leaf node. */
+    fors_gen_sk(&mut sig[idx..], ctx, &mut fors_tree_addr);
+    set_type(&mut fors_tree_addr, SPX_ADDR_TYPE_FORSTREE as u32);
+    idx += SPX_N;
 
-        /* Compute the authentication path for this leaf node. */
-         
-        fors_treehashx1::<SPX_FORS_HEIGHT, STACK_LEN>(&mut roots[i*SPX_N..], &mut sig[idx..], &ctx,
-                 indices[i], idx_offset,
-                 &mut fors_tree_addr, &mut fors_info);
+    /* Compute the authentication path for this leaf node. */
+      
+    fors_treehashx1::<SPX_FORS_HEIGHT, STACK_LEN>(
+      &mut roots[i*SPX_N..], &mut sig[idx..], &ctx, indices[i], 
+      idx_offset,&mut fors_tree_addr, &mut fors_info
+    );
 
-        idx += SPX_N * SPX_FORS_HEIGHT;
-    }
-    /* Hash horizontally across all tree roots to derive the public key. */
-    let mut buf = [0u8; SPX_ADDR_BYTES+ SPX_FORS_TREES * SPX_N];
-    thash(pk, &roots, SPX_FORS_TREES as u32, &mut buf, ctx, fors_pk_addr);
+    idx += SPX_N * SPX_FORS_HEIGHT;
+  }
+  /* Hash horizontally across all tree roots to derive the public key. */
+  thash::<SPX_FORS_TREES>(pk, &roots, ctx, fors_pk_addr);
 }
 
 /**
@@ -131,10 +120,9 @@ pub fn fors_sign(sig: &mut[u8], pk: &mut[u8],
  * typical use-case when used as an FTS below an OTS in a hypertree.
  * Assumes m contains at least SPX_FORS_HEIGHT * SPX_FORS_TREES bits.
  */
-pub fn fors_pk_from_sig(pk: &mut[u8],
-                      sig: &[u8], m: &[u8],
-                      ctx: &SpxCtx,
-                      fors_addr: &mut [u32; 8])
+pub fn fors_pk_from_sig(
+  pk: &mut[u8], sig: &[u8], m: &[u8], ctx: &SpxCtx, fors_addr: &mut [u32; 8]
+)
 {
     let mut indices = [0u32; SPX_FORS_TREES];
     let mut roots = [0u8; SPX_FORS_TREES * SPX_N];
@@ -169,6 +157,5 @@ pub fn fors_pk_from_sig(pk: &mut[u8],
     }
 
     /* Hash horizontally across all tree roots to derive the public key. */
-    let mut buf = [0u8; SPX_ADDR_BYTES+ SPX_FORS_TREES * SPX_N];
-    thash(pk, &roots, SPX_FORS_TREES as u32, &mut buf, ctx, fors_pk_addr);
+    thash::<SPX_FORS_TREES>(pk, &roots, ctx, fors_pk_addr);
 }
