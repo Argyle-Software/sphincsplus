@@ -1,6 +1,4 @@
-use crate::params::{SPX_N, SPX_FORS_TREES, SPX_WOTS_LEN};
-use crate::fors::ForsGenLeafInfo;
-use crate::wotsx1::LeafInfoX1;
+use crate::params::SPX_N;
 
 pub struct SpxCtx {
   pub pub_seed: [u8; SPX_N],
@@ -33,18 +31,4 @@ impl Default for SpxCtx {
         tweaked256_rc32: [[0u32; 8]; 10] 
     }
   }
-}
-
-pub enum Info {
-  Fors(ForsGenLeafInfo),
-  Wots(LeafInfoX1)
-}
-
-pub struct Inblocks;
-
-impl Inblocks {
-  pub const ONE: usize = 1;
-  pub const TWO: usize = 2;
-  pub const WOTS: usize = SPX_WOTS_LEN;
-  pub const FORS: usize = SPX_FORS_TREES;
 }
