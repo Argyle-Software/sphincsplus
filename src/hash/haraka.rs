@@ -32,7 +32,7 @@ pub fn prf_addr(out: &mut[u8], ctx: &SpxCtx, addr: &mut [u32; 8])
  * optional randomization value as well as the message.
  */
 pub fn gen_message_random(
-  r: &mut[u8], sk_prf: &[u8], optrand: &[u8], m: &[u8], mlen: usize, ctx: &SpxCtx
+  r: &mut[u8], sk_prf: &[u8], optrand: &[u8], m: &[u8], mlen: u64, ctx: &SpxCtx
 )
 {
   let mut s_inc = [0u8; 65]; // haraka_S_inc_init

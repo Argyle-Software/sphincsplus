@@ -7,23 +7,23 @@ use crate::params::*;
 use crate::hash::*;
 use crate::sha2::*;
 
-#[cfg(SPX_N >= 24)]
-#define SPX_SHAX_OUTPUT_BYTES SPX_SHA512_OUTPUT_BYTES
-#define SPX_SHAX_BLOCK_BYTES SPX_SHA512_BLOCK_BYTES
-#define shaX_inc_init sha512_inc_init
-#define shaX_inc_blocks sha512_inc_blocks
-#define shaX_inc_finalize sha512_inc_finalize
-#define shaX sha512
-#define mgf1_X mgf1_512
-#else
-#define SPX_SHAX_OUTPUT_BYTES SPX_SHA256_OUTPUT_BYTES
-#define SPX_SHAX_BLOCK_BYTES SPX_SHA256_BLOCK_BYTES
-#define shaX_inc_init sha256_inc_init
-#define shaX_inc_blocks sha256_inc_blocks
-#define shaX_inc_finalize sha256_inc_finalize
-#define shaX sha256
-#define mgf1_X mgf1_256
-#endif
+// #[cfg(SPX_N >= 24)]
+// #define SPX_SHAX_OUTPUT_BYTES SPX_SHA512_OUTPUT_BYTES
+// #define SPX_SHAX_BLOCK_BYTES SPX_SHA512_BLOCK_BYTES
+// #define shaX_inc_init sha512_inc_init
+// #define shaX_inc_blocks sha512_inc_blocks
+// #define shaX_inc_finalize sha512_inc_finalize
+// #define shaX sha512
+// #define mgf1_X mgf1_512
+// #else
+// #define SPX_SHAX_OUTPUT_BYTES SPX_SHA256_OUTPUT_BYTES
+// #define SPX_SHAX_BLOCK_BYTES SPX_SHA256_BLOCK_BYTES
+// #define shaX_inc_init sha256_inc_init
+// #define shaX_inc_blocks sha256_inc_blocks
+// #define shaX_inc_finalize sha256_inc_finalize
+// #define shaX sha256
+// #define mgf1_X mgf1_256
+// #endif
 
 
 /* For SHA, there is no immediate reason to initialize at the start,
@@ -65,7 +65,7 @@ pub fn prf_addr(out: &mut[u8], ctx: &SpxCtx,
  */
 pub fn gen_message_random(R: &mut[u8], sk_prf: &[u8],
                         optrand: &[u8],
-                        m: &[u8], mlen: u32
+                        m: &[u8], mlen: u64
                         ctx: &SpxCtx)
 {
     (void)ctx;
@@ -119,17 +119,11 @@ pub fn gen_message_random(R: &mut[u8], sk_prf: &[u8],
  * Outputs the message digest and the index of the leaf. The index is split in
  * the tree index and the leaf index, for convenient copying to an address.
  */
-pub fn hash_message(digest: &mut[u8], &mut[u64], leaf_idx: &mut[u32],
-                  R: &[u8], pk: &[u8],
-                  m: &[u8], mlen: u32
-                  ctx: &SpxCtx)
+pub fn hash_message(
+  digest: &mut[u8], &mut[u64], leaf_idx: &mut[u32],
+  R: &[u8], pk: &[u8], m: &[u8], mlen: u64, _ctx: &SpxCtx
+)
 {
-    (void)ctx;
-#define SPX_TREE_BITS (SPX_TREE_HEIGHT * (SPX_D - 1))
-#define SPX_TREE_BYTES ((SPX_TREE_BITS + 7) / 8)
-#define SPX_LEAF_BITS SPX_TREE_HEIGHT
-#define SPX_LEAF_BYTES ((SPX_LEAF_BITS + 7) / 8)
-#define SPX_DGST_BYTES (SPX_FORS_MSG_BYTES + SPX_TREE_BYTES + SPX_LEAF_BYTES)
 
     let mut seed = [0u8; 2*SPX_N + SPX_SHAX_OUTPUT_BYTES];
 

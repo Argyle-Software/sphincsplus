@@ -1,18 +1,13 @@
-
-
-
-use crate::address::*;
 use crate::context::SpxCtx;
 use crate::utils::*;
 use crate::params::*;
-// use crate::hash::*;
 use crate::fips202::*;
 
 /* For SHAKE256, there is no immediate reason to initialize at the start,
    so this function is an empty operation. */
-pub fn initialize_hash_function(ctx: SpxCtx)
+pub fn initialize_hash_function(ctx: &mut SpxCtx)
 {
-    ()
+  ()
 }
 
 /*
@@ -34,10 +29,9 @@ pub fn prf_addr(out: &mut[u8], ctx: &SpxCtx, addr: &mut [u32; 8])
  * Computes the message-dependent randomness R, using a secret seed and an
  * optional randomization value as well as the message.
  */
-pub fn gen_message_random(R: &mut[u8], sk_prf: &[u8],
-                        optrand: &[u8],
-                        m: &[u8], mlen: u32,
-                        ctx: &SpxCtx)
+pub fn gen_message_random(
+  R: &mut[u8], sk_prf: &[u8], optrand: &[u8], m: &[u8], mlen: u64, _ctx: &SpxCtx
+)
 {
     let mut s_inc = [0u64; 26];
     shake256_inc_absorb(&mut s_inc, sk_prf, SPX_N);
@@ -54,22 +48,22 @@ pub fn gen_message_random(R: &mut[u8], sk_prf: &[u8],
  */
 pub fn hash_message(
   digest: &mut[u8], tree: &mut u64, leaf_idx: &mut u32, R: &[u8], 
-  pk: &[u8], m: &[u8], mlen: u32, ctx: &SpxCtx
+  pk: &[u8], m: &[u8], mlen: u64, _ctx: &SpxCtx
 )
 {
 
-    let mut buf = [0u8; SPX_DGST_BYTES];
-    let mut idx  = 0;
-    let mut s_inc = [0u64; 26];
+  let mut buf = [0u8; SPX_DGST_BYTES];
+  let mut idx  = 0;
+  let mut s_inc = [0u64; 26];
 
-    shake256_inc_absorb(&mut s_inc, R, SPX_N);
-    shake256_inc_absorb(&mut s_inc, pk, SPX_PK_BYTES);
-    shake256_inc_absorb(&mut s_inc, m, mlen as usize);
-    shake256_inc_finalize(&mut s_inc);
-    shake256_inc_squeeze(&mut buf, SPX_DGST_BYTES, &mut s_inc);
+  shake256_inc_absorb(&mut s_inc, R, SPX_N);
+  shake256_inc_absorb(&mut s_inc, pk, SPX_PK_BYTES);
+  shake256_inc_absorb(&mut s_inc, m, mlen as usize);
+  shake256_inc_finalize(&mut s_inc);
+  shake256_inc_squeeze(&mut buf, SPX_DGST_BYTES, &mut s_inc);
 
-    &digest[..SPX_FORS_MSG_BYTES].copy_from_slice(&buf[..SPX_FORS_MSG_BYTES]);
-    idx += SPX_FORS_MSG_BYTES;
+  digest[..SPX_FORS_MSG_BYTES].copy_from_slice(&buf[..SPX_FORS_MSG_BYTES]);
+  idx += SPX_FORS_MSG_BYTES;
 
   *tree = bytes_to_ull(&buf[idx..], SPX_TREE_BYTES);
   *tree &= !0 >> (64 - SPX_TREE_BITS);
