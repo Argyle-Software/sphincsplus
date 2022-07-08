@@ -1,5 +1,6 @@
 use crate::params::*;
 use crate::utils::*;
+use crate::offsets::*;
 
 pub const SPX_ADDR_TYPE_WOTS: usize = 0;
 pub const SPX_ADDR_TYPE_WOTSPK: usize = 1;

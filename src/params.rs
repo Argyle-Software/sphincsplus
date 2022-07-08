@@ -1,5 +1,3 @@
-pub use crate::haraka_offsets::*;
-
 pub const CRYPTO_SECRETKEYBYTES: usize = SPX_SK_BYTES;
 pub const CRYPTO_PUBLICKEYBYTES: usize = SPX_PK_BYTES;
 pub const CRYPTO_BYTES: usize = SPX_BYTES;
@@ -71,3 +69,11 @@ pub const SPX_WOTS_LEN2: usize = if SPX_WOTS_W == 256 {
     4
   }
 };
+
+pub const SPX_SHA256_BLOCK_BYTES: usize = 64;
+pub const SPX_SHA256_OUTPUT_BYTES: usize = 32;  /* This does not necessarily equal SPX_N */
+
+pub const SPX_SHA512_BLOCK_BYTES: usize = 128;
+pub const SPX_SHA512_OUTPUT_BYTES: usize = 64;
+
+pub const SPX_SHA256_ADDR_BYTES: usize = 22;
