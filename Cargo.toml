@@ -3,16 +3,15 @@ name = "pqc_sphincsplus"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 pqc_core = {version = "0.1.0", path = "../pqc_core"}
 rand = "0.7.3"
 
 [features]
-default = ["haraka", "simple"]
+default = ["sha2", "robust",]
 sha2 = []
 sha512 = []
+shake = []
 haraka = []
 simple = []
 robust = []
