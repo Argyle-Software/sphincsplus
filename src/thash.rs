@@ -1,31 +1,31 @@
 #[cfg(all(feature = "haraka", feature = "robust"))]
-mod thash_haraka_robust;
+mod haraka_robust;
 #[cfg(all(feature = "haraka", feature = "simple"))]
-mod thash_haraka_simple;
+mod haraka_simple;
 #[cfg(all(feature = "sha2", feature = "robust"))]
-mod thash_sha2_robust;
+mod sha2_robust;
 #[cfg(all(feature = "sha2", feature = "simple"))]
-mod thash_sha2_simple;
+mod sha2_simple;
 #[cfg(all(feature = "shake", feature = "robust"))]
-mod thash_shake_robust;
+mod shake_robust;
 #[cfg(all(feature = "shake", feature = "simple"))]
-mod thash_shake_simple;
+mod shake_simple;
 
 
 #[cfg(all(feature = "haraka", feature = "simple"))]
-pub use thash_haraka_simple::*; 
+pub use haraka_simple::*; 
 
 #[cfg(all(feature = "haraka", feature = "robust"))]
-pub use thash_haraka_robust::*; 
+pub use haraka_robust::*; 
 
 #[cfg(all(feature = "sha2", feature = "simple"))]
-pub use thash_sha2_simple::*; 
+pub use sha2_simple::*; 
 
 #[cfg(all(feature = "sha2", feature = "robust"))]
-pub use thash_sha2_robust::*; 
+pub use sha2_robust::*; 
 
 #[cfg(all(feature = "shake", feature = "simple"))]
-pub use thash_shake_simple::*; 
+pub use shake_simple::*; 
 
 #[cfg(all(feature = "shake", feature = "robust"))]
-pub use thash_shake_robust::*; 
+pub use shake_robust::*; 
