@@ -34,7 +34,7 @@ pub fn wots_treehashx1<const T: usize, const S: usize>(
 ) 
 {
   let mut idx =  0u32;
-  let mut max_idx = (1 << T) - 1;
+  let max_idx = (1 << T) - 1;
   let mut stack = [0u8; S];
   loop {
     let mut current = [0u8; 2*SPX_N];   /* Current logical node is at */
@@ -108,7 +108,7 @@ pub fn fors_treehashx1<const T: usize, const S: usize>(
 ) 
 {
   let mut idx =  0u32;
-  let mut max_idx = (1 << T) - 1;
+  let max_idx = (1 << T) - 1;
   let mut stack = [0u8; S];
   loop {
     let mut current = [0u8; 2*SPX_N];   /* Current logical node is at */
