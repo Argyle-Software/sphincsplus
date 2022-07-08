@@ -4,13 +4,16 @@ mod address;
 mod context;
 mod fips202;
 mod fors;
+#[cfg(feature = "haraka")]
 mod haraka;
+#[cfg(feature = "haraka")]
 mod haraka_offsets;
 mod hash;
 // mod hash_haraka;
 // mod hash_sha2;
 // mod hash_shake;
 mod merkle;
+mod offsets;
 mod params;
 // mod sha2;
 mod sign;
