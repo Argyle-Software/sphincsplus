@@ -1,17 +1,17 @@
 #[cfg(feature = "haraka")]
-mod hash_haraka; 
+mod haraka; 
 
 #[cfg(feature = "sha2")]
-mod hash_sha2; 
+mod sha2; 
 
 #[cfg(feature = "shake")]
-mod hash_shake;
+mod shake;
 
 #[cfg(feature = "haraka")]
-pub use hash_haraka::*; 
+pub use haraka::*; 
 
 #[cfg(feature = "sha2")]
-pub use hash_sha2::*; 
+pub use sha2::*; 
 
 #[cfg(feature = "shake")]
-pub use hash_shake::*; 
+pub use shake::*; 
