@@ -2,12 +2,11 @@
 
 mod address;
 mod context;
+#[cfg(feature = "shake")]
 mod fips202;
 mod fors;
 #[cfg(feature = "haraka")]
 mod haraka;
-#[cfg(feature = "haraka")]
-mod haraka_offsets;
 mod hash;
 // mod hash_haraka;
 // mod hash_sha2;
@@ -15,7 +14,8 @@ mod hash;
 mod merkle;
 mod offsets;
 mod params;
-// mod sha2;
+#[cfg(any(feature = "sha2", feature = "sha512"))]
+mod sha2;
 mod sign;
 mod thash;
 mod utils;

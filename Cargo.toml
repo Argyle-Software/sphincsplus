@@ -8,7 +8,7 @@ pqc_core = {version = "0.1.0", path = "../pqc_core"}
 rand = "0.7.3"
 
 [features]
-default = ["sha2", "robust",]
+default = ["shake", "robust"]
 sha2 = []
 sha512 = []
 shake = []
