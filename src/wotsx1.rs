@@ -48,7 +48,7 @@ pub fn wots_gen_leafx1(
     let mut pk_addr = v_info.pk_addr;
     
     let mut pk_buffer = [0u8;  SPX_WOTS_BYTES ];
-    let mut wots_k_mask =  0u32;
+    let wots_k_mask;
 
     if leaf_idx == v_info.wots_sign_leaf {
         /* We're traversing the leaf that's signing; generate the WOTS */
@@ -94,8 +94,8 @@ pub fn wots_gen_leafx1(
             /* Iterate one step on the chain */
             set_hash_addr(&mut leaf_addr, k);
 
-            let mut tmp_buffer = &pk_buffer.clone();
-            thash::<1>(&mut pk_buffer[idx..], &tmp_buffer[idx..], ctx, leaf_addr);
+            let tmp_buffer = &pk_buffer.clone();
+            thash::<1>(&mut pk_buffer[idx..], &tmp_buffer[idx..], ctx, &leaf_addr);
 
             k += 1;
         }
@@ -103,5 +103,5 @@ pub fn wots_gen_leafx1(
     }
 
     /* Do the final thash to generate the public keys */
-    thash::<SPX_WOTS_LEN>(dest, &pk_buffer, ctx, pk_addr);
+    thash::<SPX_WOTS_LEN>(dest, &pk_buffer, ctx, &pk_addr);
 }

@@ -1,9 +1,6 @@
-use crate::address::*;
 use crate::utils::*;
 use crate::params::*;
-
 use crate::haraka::*;
-// use crate::hash::*;
 use crate::context::SpxCtx;
 
 pub fn initialize_hash_function(ctx: &mut SpxCtx)
@@ -14,7 +11,7 @@ pub fn initialize_hash_function(ctx: &mut SpxCtx)
 /*
  * Computes PRF(key, addr), given a secret key of SPX_N bytes and an address
  */
-pub fn prf_addr(out: &mut[u8], ctx: &SpxCtx, addr: &mut [u32; 8])
+pub fn prf_addr(out: &mut[u8], ctx: &SpxCtx, addr: &mut[u32])
 {
   /* Since SPX_N may be smaller than 32, we need temporary buffers. */
   let mut outbuf = [0u8; 32];
@@ -32,7 +29,7 @@ pub fn prf_addr(out: &mut[u8], ctx: &SpxCtx, addr: &mut [u32; 8])
  * optional randomization value as well as the message.
  */
 pub fn gen_message_random(
-  r: &mut[u8], sk_prf: &[u8], optrand: &[u8], m: &[u8], mlen: u64, ctx: &SpxCtx
+  r: &mut[u8], sk_prf: &[u8], optrand: &[u8], m: &[u8], mlen: usize, ctx: &SpxCtx
 )
 {
   let mut s_inc = [0u8; 65]; // haraka_S_inc_init
@@ -49,7 +46,7 @@ pub fn gen_message_random(
  * the tree index and the leaf index, for convenient copying to an address.
  */
 pub fn hash_message(
-  digest: &mut[u8], tree: &mut u64, leaf_idx: &mut u32, R: &[u8], pk: &[u8], 
+  digest: &mut[u8], tree: &mut u64, leaf_idx: &mut u32, r: &[u8], pk: &[u8], 
   m: &[u8], mlen: usize, ctx: &SpxCtx
 )
 {
@@ -59,7 +56,7 @@ pub fn hash_message(
   let mut idx = 0usize;
 
 
-  haraka_S_inc_absorb(&mut s_inc, R, SPX_N, ctx);
+  haraka_S_inc_absorb(&mut s_inc, r, SPX_N, ctx);
   // Only absorb root part of pk
   haraka_S_inc_absorb(&mut s_inc, &pk[SPX_N..], SPX_N, ctx); 
   haraka_S_inc_absorb(&mut s_inc, m, mlen, ctx);

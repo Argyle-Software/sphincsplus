@@ -45,7 +45,7 @@ fn br_range_dec32le(v: &mut [u32], mut num: usize, src: &[u8])
   }
 }
 
-fn br_swap32(mut x: u32) -> u32
+fn _br_swap32(mut x: u32) -> u32
 {
   x = ((x & 0x00FF00FFu32 ) << 8) | ((x >> 8) & 0x00FF00FFu32);
   (x << 16) | (x >> 16)
@@ -309,8 +309,6 @@ fn rotr16(x: u32) -> u32
 pub fn mix_columns32(q: &mut[u32])
 {
   let q0 = q[0];
-  let q1 = q[1];
-  let q2 = q[2];  let q0 = q[0];
   let q1 = q[1];
   let q2 = q[2];
   let q3 = q[3];
@@ -748,7 +746,7 @@ pub fn haraka256(out: &mut[u8], input: &[u8],
         ctx: &SpxCtx)
 {
   let mut q = [0u32; 8];
-  let mut tmp_q = 0u32;
+  let mut tmp_q;
   for i in 0..4  {
     q[2*i] = br_dec32le(&input[4*i..]);
     q[2*i + 1] = br_dec32le(&input[4*i + 16..]);
