@@ -29,7 +29,7 @@ pub fn gen_chain(
   let mut i = 0;
   while i < (start+steps) && i < SPX_WOTS_W as u32 {
     set_hash_addr(addr, i);
-    thash_inplace::<1>(out, ctx, *addr);
+    thash_inplace::<1>(out, ctx, addr);
     i += 1;
   }
 }

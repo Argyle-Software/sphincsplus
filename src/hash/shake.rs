@@ -13,7 +13,7 @@ pub fn initialize_hash_function(ctx: &mut SpxCtx)
 /*
  * Computes PRF(pk_seed, sk_seed, addr)
  */
-pub fn prf_addr(out: &mut[u8], ctx: &SpxCtx, addr: &mut [u32; 8])
+pub fn prf_addr(out: &mut[u8], ctx: &SpxCtx, addr: &mut[u32])
 {
   let mut idx = SPX_N; 
   let mut buf = [0u8; 2*SPX_N + SPX_ADDR_BYTES];
@@ -30,15 +30,15 @@ pub fn prf_addr(out: &mut[u8], ctx: &SpxCtx, addr: &mut [u32; 8])
  * optional randomization value as well as the message.
  */
 pub fn gen_message_random(
-  R: &mut[u8], sk_prf: &[u8], optrand: &[u8], m: &[u8], mlen: u64, _ctx: &SpxCtx
+  r: &mut[u8], sk_prf: &[u8], optrand: &[u8], m: &[u8], mlen: usize, ctx: &SpxCtx
 )
 {
-    let mut s_inc = [0u64; 26];
-    shake256_inc_absorb(&mut s_inc, sk_prf, SPX_N);
-    shake256_inc_absorb(&mut s_inc, optrand, SPX_N);
-    shake256_inc_absorb(&mut s_inc, m, mlen as usize);
-    shake256_inc_finalize(&mut s_inc);
-    shake256_inc_squeeze(R, SPX_N, &mut s_inc);
+  let mut s_inc = [0u64; 26];
+  shake256_inc_absorb(&mut s_inc, sk_prf, SPX_N);
+  shake256_inc_absorb(&mut s_inc, optrand, SPX_N);
+  shake256_inc_absorb(&mut s_inc, m, mlen as usize);
+  shake256_inc_finalize(&mut s_inc);
+  shake256_inc_squeeze(R, SPX_N, &mut s_inc);
 }
 
 /**
@@ -47,8 +47,8 @@ pub fn gen_message_random(
  * the tree index and the leaf index, for convenient copying to an address.
  */
 pub fn hash_message(
-  digest: &mut[u8], tree: &mut u64, leaf_idx: &mut u32, R: &[u8], 
-  pk: &[u8], m: &[u8], mlen: u64, _ctx: &SpxCtx
+  digest: &mut[u8], tree: &mut u64, leaf_idx: &mut u32, R: &[u8], pk: &[u8], 
+  m: &[u8], mlen: usize, _ctx: &SpxCtx
 )
 {
 
@@ -73,18 +73,17 @@ pub fn hash_message(
   *leaf_idx &= !0 >> (32 - SPX_LEAF_BITS);
 }
 
+fn shake128_inc_absorb(s: &mut [u64], input: &[u8], inlen: usize) {
+  keccak_inc_absorb(s, SHAKE128_RATE, input, inlen);
+}
 
-// void shake128_inc_absorb(uint64_t *s_inc, const uint8_t *input, size_t inlen) {
-//   keccak_inc_absorb(s_inc, SHAKE128_RATE, input, inlen);
-// }
+fn shake128_inc_finalize(s: &mut[u64]) {
+  keccak_inc_finalize(s, SHAKE128_RATE, 0x1F);
+}
 
-// void shake128_inc_finalize(uint64_t *s_inc) {
-//   keccak_inc_finalize(s_inc, SHAKE128_RATE, 0x1F);
-// }
-
-// void shake128_inc_squeeze(uint8_t *output, size_t outlen, uint64_t *s_inc) {
-//   keccak_inc_squeeze(output, outlen, s_inc, SHAKE128_RATE);
-// }
+fn shake128_inc_squeeze(output: &mut[u8], outlen: usize, s_inc: &mut[u64]) {
+  keccak_inc_squeeze(output, outlen, s_inc, SHAKE128_RATE);
+}
 
 
 fn shake256_inc_absorb(s: &mut [u64], input: &[u8], inlen: usize) {

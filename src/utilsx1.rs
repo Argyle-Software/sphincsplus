@@ -88,7 +88,7 @@ pub fn wots_treehashx1<const T: usize, const S: usize>(
 
       current[..SPX_N].copy_from_slice(&stack[start..start + SPX_N]);
       let tmp_current = current.clone();
-      thash::<2>( &mut current[SPX_N..], &tmp_current, ctx, *tree_addr);
+      thash::<2>( &mut current[SPX_N..], &tmp_current, ctx, tree_addr);
       h += 1; 
       internal_idx >>= 1;
       internal_leaf >>= 1;
@@ -104,7 +104,7 @@ pub fn wots_treehashx1<const T: usize, const S: usize>(
 
 pub fn fors_treehashx1<const T: usize, const S: usize>(
   root: &mut[u8], auth_path: &mut[u8], ctx: &SpxCtx, leaf_idx: u32, 
-  idx_offset: u32, tree_addr: &mut [u32; 8], info: &mut ForsGenLeafInfo
+  idx_offset: u32, tree_addr: &mut[u32; 8], info: &mut ForsGenLeafInfo
 ) 
 {
   let mut idx =  0u32;
@@ -163,7 +163,7 @@ pub fn fors_treehashx1<const T: usize, const S: usize>(
 
       current[..SPX_N].copy_from_slice(&stack[start..start + SPX_N]);
       let tmp_current = current.clone();
-      thash::<2>( &mut current[SPX_N..], &tmp_current, ctx, *tree_addr);
+      thash::<2>( &mut current[SPX_N..], &tmp_current, ctx, tree_addr);
       h += 1; 
       internal_idx >>= 1;
       internal_leaf >>= 1;

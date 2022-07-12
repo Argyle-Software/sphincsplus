@@ -43,7 +43,7 @@ pub fn bytes_to_ull(input: &[u8], inlen: usize ) -> u64
  */
 pub fn compute_root(
   root: &mut[u8], leaf: &[u8], mut leaf_idx: u32, mut idx_offset: u32,
-  auth_path: &[u8], tree_height: u32, ctx: &SpxCtx, addr: &mut [u32; 8]
+  auth_path: &[u8], tree_height: u32, ctx: &SpxCtx, addr: &mut[u32; 8]
 )
 {
   let mut buffer = [0u8; 2 * SPX_N];
@@ -72,11 +72,11 @@ pub fn compute_root(
     
     if (leaf_idx & 1) != 0 {
       let tmp_buffer = buffer.clone();
-      thash::<2>(&mut buffer[SPX_N..], &tmp_buffer, ctx, *addr);
+      thash::<2>(&mut buffer[SPX_N..], &tmp_buffer, ctx, addr);
       buffer[..SPX_N].copy_from_slice(&auth_path[idx..idx + SPX_N]);
   }
     else {
-      thash_inplace::<2>(&mut buffer, ctx, *addr);
+      thash_inplace::<2>(&mut buffer, ctx, addr);
       buffer[SPX_N..].copy_from_slice(&auth_path[idx..idx + SPX_N]);
     }
     idx += SPX_N;
@@ -87,7 +87,7 @@ pub fn compute_root(
   idx_offset >>= 1;
   set_tree_height(addr, tree_height);
   set_tree_index(addr, leaf_idx + idx_offset);
-  thash::<2>(root, &buffer, ctx, *addr);
+  thash::<2>(root, &buffer, ctx, addr);
 }
 
 pub fn bytes_to_address(addr: &mut[u32], bytes: &[u8])

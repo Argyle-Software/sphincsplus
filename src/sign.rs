@@ -71,7 +71,7 @@ pub fn  crypto_sign_keypair(pk: &mut[u8], sk: &mut[u8], seed: Option<&[u8]>) -> 
  * Returns an array containing a detached signature.
  */
 pub fn  crypto_sign_signature(
-  sig: &mut[u8], m: &[u8], mlen: u64, sk: &[u8], seed: Option<&[u8]>
+  sig: &mut[u8], m: &[u8], mlen: usize, sk: &[u8], seed: Option<&[u8]>
 )
 {
     let mut ctx = SpxCtx::default();
@@ -112,10 +112,10 @@ pub fn  crypto_sign_signature(
     }
     
     /* Compute the digest randomization value. */
-    gen_message_random(sig, &sk_prf, &optrand, m, mlen as usize, &ctx);
+    gen_message_random(sig, &sk_prf, &optrand, m, mlen, &ctx);
 
     /* Derive the message digest and leaf index from R, PK and M. */
-    hash_message(&mut mhash, &mut tree, &mut idx_leaf, sig, &pk, m, mlen as usize, &ctx);
+    hash_message(&mut mhash, &mut tree, &mut idx_leaf, sig, &pk, m, mlen, &ctx);
     idx += SPX_N;
 
     set_tree_addr(&mut wots_addr, tree);
@@ -177,7 +177,10 @@ pub fn crypto_sign_verify(sig: &mut[u8], mlen: usize, pk: &[u8]) -> i32
 
     /* Derive the message digest and leaf index from R || PK || M. */
     /* The additional SPX_N is a result of the hash domain separator. */
-    // hash_message(&mut mhash, &mut tree, &mut idx_leaf, sig, pk, mlen, &ctx);
+    hash_message(
+      &mut mhash, &mut tree, &mut idx_leaf, sig, 
+      pk, &sig[SPX_BYTES..], mlen, &ctx
+    );
     idx += SPX_N;
 
     /* Layer correctly defaults to 0, so no need to set_layer_addr */
@@ -203,7 +206,7 @@ pub fn crypto_sign_verify(sig: &mut[u8], mlen: usize, pk: &[u8]) -> i32
         idx += SPX_WOTS_BYTES;
 
         /* Compute the leaf node using the WOTS public key. */
-        thash::<SPX_WOTS_LEN>(&mut leaf, &wots_pk, &ctx, wots_pk_addr);
+        thash::<SPX_WOTS_LEN>(&mut leaf, &wots_pk, &ctx, &wots_pk_addr);
 
         /* Compute the root node of this subtree. */
         compute_root(&mut root, &leaf, idx_leaf, 0, &sig[idx..], SPX_TREE_HEIGHT as u32,
@@ -228,7 +231,7 @@ pub fn crypto_sign_verify(sig: &mut[u8], mlen: usize, pk: &[u8]) -> i32
  * Returns an array containing the signature followed by the message.
  */
 pub fn crypto_sign(
-  sm: &mut[u8], smlen: &mut u64, m: &[u8], mlen: u64, sk: &[u8], seed: Option<&[u8]>
+  sm: &mut[u8], smlen: &mut usize, m: &[u8], mlen: usize, sk: &[u8], seed: Option<&[u8]>
 
 ) -> i32
 {
@@ -236,7 +239,7 @@ pub fn crypto_sign(
     crypto_sign_signature(sm, m, mlen, sk, seed);
 
     sm[SPX_BYTES..].copy_from_slice(&m);
-    *smlen = SPX_BYTES as u64 + mlen;
+    *smlen = SPX_BYTES + mlen;
 
     return 0;
 }
@@ -244,18 +247,18 @@ pub fn crypto_sign(
 /**
  * Verifies a given signature-message pair under a given public key.
  */
-pub fn crypto_sign_open(m: &mut[u8], mlen: &mut u64, sm: &mut [u8], smlen: u64, pk: &[u8]) 
+pub fn crypto_sign_open(m: &mut[u8], mlen: &mut usize, sm: &mut [u8], smlen: usize, pk: &[u8]) 
 -> i32
 {
     /* The API caller does not necessarily know what size a signature should be
        but SPHINCS+ signatures are always exactly SPX_BYTES. */
-    if smlen < SPX_BYTES as u64 {
+    if smlen < SPX_BYTES {
         m.fill(0);
         *mlen = 0;
         // return -1;
     }
 
-    *mlen = smlen - SPX_BYTES as u64;
+    *mlen = smlen - SPX_BYTES;
 
     if (crypto_sign_verify(sm, *mlen as usize, pk)) != 0 {
       m.fill(0);

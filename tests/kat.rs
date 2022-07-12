@@ -35,10 +35,10 @@ pub fn sign() {
     let mlen = kat.mlen;
     let sk = kat.sk.clone();
     let mut sm2 = vec![0u8; CRYPTO_BYTES + mlen];
-    let mut smlen2 = 0u64;
-    crypto_sign(&mut sm2, &mut smlen2, &msg, mlen as u64, &sk, Some(&bufs[i]));
+    let mut smlen2 = 0usize;
+    crypto_sign(&mut sm2, &mut smlen2, &msg, mlen, &sk, Some(&bufs[i]));
     assert_eq!(sm, sm2);
-    assert_eq!(smlen, smlen2 as usize);
+    assert_eq!(smlen, smlen2);
   }
 }
 
@@ -48,9 +48,9 @@ pub fn sign_open() {
   let kats = load::kats(&mut basepath, FILENAME);
   for kat in kats {
     let mut sm = kat.sm.clone();
-    let smlen = kat.smlen as u64;
+    let smlen = kat.smlen;
     let msg = kat.msg.clone();
-    let mut mlen = kat.mlen as u64;
+    let mut mlen = kat.mlen;
     let pk = kat.pk.clone();
     let mut msg2 = vec![0u8; CRYPTO_BYTES + mlen as usize];
     crypto_sign_open(&mut msg2, &mut mlen, &mut sm, smlen, &pk);
