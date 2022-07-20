@@ -6,18 +6,12 @@
 #[cfg(feature = "s192")] mod s192;
 #[cfg(feature = "s256")] mod s256;
 
-#[cfg(feature = "f128")] 
-pub use f128::*;
-#[cfg(feature = "f192")] 
-pub use f192::*;
-#[cfg(feature = "f256")] 
-pub use f256::*;
-#[cfg(feature = "s128")] 
-pub use s128::*;
-#[cfg(feature = "s192")] 
-pub use s192::*;
-#[cfg(feature = "s256")] 
-pub use s256::*;
+#[cfg(feature = "f128")] pub use f128::*;
+#[cfg(feature = "f192")] pub use f192::*;
+#[cfg(feature = "f256")] pub use f256::*;
+#[cfg(feature = "s128")] pub use s128::*;
+#[cfg(feature = "s192")] pub use s192::*;
+#[cfg(feature = "s256")] pub use s256::*;
 
 pub const CRYPTO_SECRETKEYBYTES: usize = SPX_SK_BYTES;
 pub const CRYPTO_PUBLICKEYBYTES: usize = SPX_PK_BYTES;
