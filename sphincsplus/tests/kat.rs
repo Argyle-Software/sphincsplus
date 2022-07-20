@@ -1,11 +1,12 @@
 use std::path::PathBuf;
 use pqc_core::load;
+use pqc_sphincsplus::*;
 
 const BUF1: &str = "SeedBufferKeygen";
 const BUF2: &str = "SeedBufferSign";
 
 fn filename() -> String {
-  format!("PQCsignKAT_{}.rsp", env!("CARGO_PKG_NAME").replace("_", "-"))
+  format!("PQCsignKAT.rsp")
 }
 
 #[test]

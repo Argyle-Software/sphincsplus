@@ -1,4 +1,4 @@
-/target
-/Cargo.lock
-tests/KAT
-.vscode
+target/
+Cargo.lock
+.vscode/
+*/tests/KAT/*

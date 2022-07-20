@@ -1,0 +1,41 @@
+[package]
+name = "pqc_sphincsplus"
+version = "0.1.0"
+edition = "2021"
+authors = ["Mitchell Berry <foss@mitchellberry.com>"]
+description = "Sphincs+ is a post-quantum signature scheme"
+readme = "readme.md"
+repository = "https://github.com/Argyle-Software/pqc_sphincsplus"
+license = "MIT OR Apache-2.0"
+categories = ["algorithms", "cryptography"]
+keywords = ["sphincsplus", "sphincs+", "sphincs", "signature", "post-quantum"]
+
+[dependencies]
+pqc_core = {version = "0.1.0", path = "../../pqc_core"}
+rand = "0.7.3"
+
+# Must choose one from each of the groups below
+[features]
+default = ["haraka", "f128", "robust"]
+
+# Hash
+sha2 = []
+sha512 = []
+shake = []
+haraka = []
+
+# Security level
+f128 = []
+f192 = []
+f256 = []
+s128 = []
+s192 = []
+s256 = []
+
+# Mode
+simple = []
+robust = []
+
+# Speed up KAT
+[profile.test]
+opt-level = 3

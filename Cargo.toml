@@ -1,21 +1,40 @@
-[package]
-name = "pqc_sphincsplus"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-pqc_core = {version = "0.1.0", path = "../pqc_core"}
-rand = "0.7.3"
-
-[features]
-default = ["shake", "robust"]
-sha2 = []
-sha512 = []
-shake = []
-haraka = []
-simple = []
-robust = []
-
-# Speed up KAT
-[profile.test]
-opt-level = 3
+[workspace]
+resolver = "2"
+members = [
+  "sphincsplus",
+  "haraka_128f_simple",
+  "haraka_128s_robust",
+  "haraka_128s_simple",
+  "haraka_192f_robust",
+  "haraka_192f_simple",
+  "haraka_192s_robust",
+  "haraka_192s_simple",
+  "haraka_256f_robust",
+  "haraka_256f_simple",
+  "haraka_256s_robust",
+  "haraka_256s_simple",
+  "sha2_128f_robust",
+  "sha2_128f_simple",
+  "sha2_128s_robust",
+  "sha2_128s_simple",
+  "sha2_192f_robust",
+  "sha2_192f_simple",
+  "sha2_192s_robust",
+  "sha2_192s_simple",
+  "sha2_256f_robust",
+  "sha2_256f_simple",
+  "sha2_256s_robust",
+  "sha2_256s_simple",
+  "shake_128f_robust",
+  "shake_128f_simple",
+  "shake_128s_robust",
+  "shake_128s_simple",
+  "shake_192f_robust",
+  "shake_192f_simple",
+  "shake_192s_robust",
+  "shake_192s_simple",
+  "shake_256f_robust",
+  "shake_256f_simple",
+  "shake_256s_robust",
+  "shake_256s_simple",
+]

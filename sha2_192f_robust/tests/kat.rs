@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use pqc_core::load;
+use sphincs_sha2_192f_robust::*;
 
 const BUF1: &str = "SeedBufferKeygen";
 const BUF2: &str = "SeedBufferSign";
