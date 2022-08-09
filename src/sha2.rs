@@ -1,11 +1,12 @@
 use core::convert::TryInto;
+use crate::api::SecLevel;
 use crate::context::SpxCtx;
 use crate::params::*;
 use crate::utils::*;
 use sha256::digest::generic_array::GenericArray;
 
 pub const SPX_SHA256_BLOCK_BYTES: usize = 64;
-pub const SPX_SHA256_OUTPUT_BYTES: usize = 32;  /* This does not necessarily equal SPX_N */
+pub const SPX_SHA256_OUTPUT_BYTES: usize = 32;  /* This does not necessarily equal L::SPX_N */
 
 pub const SPX_SHA512_BLOCK_BYTES: usize = 128;
 pub const SPX_SHA512_OUTPUT_BYTES: usize = 64;
@@ -231,27 +232,28 @@ pub fn sha512(out: &mut [u8], input: &[u8], inlen: usize) {
 /// Note that inlen should be sufficiently small that it still allows for
 /// an array to be allocated on the stack. Typically 'input' is merely a seed.
 /// Outputs outlen number of bytes
-pub fn mgf1_256(out: &mut[u8], outlen: usize, input: &[u8])
+pub fn mgf1_256<L: SecLevel>(out: &mut[u8], outlen: usize, input: &[u8])
+  where [(); L::SHA2_INLEN + 4]:
 {
-  const INLEN: usize = SPX_N + SPX_SHA256_ADDR_BYTES;
-  let mut inbuf = [0u8; INLEN + 4];
+  // const INLEN: usize = L::SPX_N + SPX_SHA256_ADDR_BYTES;
+  let mut inbuf = [0u8; L::SHA2_INLEN + 4];
   let mut outbuf = [0u8; SPX_SHA256_OUTPUT_BYTES];
 
-  inbuf[..INLEN].copy_from_slice(&input[..INLEN]);
+  inbuf[..L::SHA2_INLEN].copy_from_slice(&input[..L::SHA2_INLEN]);
 
   // While we can fit in at least another full block of SHA256 output..
   let mut i = 0;
   let mut idx = 0;
   while (i+1)*SPX_SHA256_OUTPUT_BYTES <= outlen {
-    u32_to_bytes(&mut inbuf[INLEN..], i as u32);
-    sha256(&mut out[idx..], &inbuf, INLEN + 4);
+    u32_to_bytes(&mut inbuf[L::SHA2_INLEN..], i as u32);
+    sha256(&mut out[idx..], &inbuf, L::SHA2_INLEN + 4);
     idx += SPX_SHA256_OUTPUT_BYTES;
     i += 1;
   }
   // Until we cannot anymore, and we fill the remainder.
   if outlen > i*SPX_SHA256_OUTPUT_BYTES {
-    u32_to_bytes(&mut inbuf[INLEN..], i as u32);
-    sha256(&mut outbuf, &inbuf, INLEN + 4);
+    u32_to_bytes(&mut inbuf[L::SHA2_INLEN..], i as u32);
+    sha256(&mut outbuf, &inbuf, L::SHA2_INLEN + 4);
     let end = outlen - i*SPX_SHA256_OUTPUT_BYTES;
     out[idx..idx+end].copy_from_slice(&outbuf[..end]);
   }
@@ -259,26 +261,27 @@ pub fn mgf1_256(out: &mut[u8], outlen: usize, input: &[u8])
 
 
 // mgf1 function based on the SHA-512 hash function
-pub fn mgf1_512(out: &mut[u8], outlen: usize, input: &[u8])
+pub fn mgf1_512<L: SecLevel>(out: &mut[u8], outlen: usize, input: &[u8])
+  where [(); L::SHA2_INLEN + 4]:
 {
-  const INLEN: usize = SPX_N + SPX_SHA256_ADDR_BYTES;
-  let mut inbuf = [0u8; INLEN + 4];
+  // const INLEN: usize = L::SPX_N + SPX_SHA256_ADDR_BYTES;
+  let mut inbuf = [0u8; L::SHA2_INLEN + 4];
   let mut outbuf = [0u8; SPX_SHA512_OUTPUT_BYTES];
-  inbuf[..INLEN].copy_from_slice(&input[..INLEN]);
+  inbuf[..L::SHA2_INLEN].copy_from_slice(&input[..L::SHA2_INLEN]);
 
   // While we can fit in at least another fu64 block of SHA512 output..
   let mut i = 0;
   let mut idx = 0;
   while (i+1)*SPX_SHA512_OUTPUT_BYTES <= outlen {
-    u32_to_bytes(&mut inbuf[INLEN..], i as u32);
-    sha512(&mut out[idx..], &inbuf, INLEN + 4);
+    u32_to_bytes(&mut inbuf[L::SHA2_INLEN..], i as u32);
+    sha512(&mut out[idx..], &inbuf, L::SHA2_INLEN + 4);
     idx += SPX_SHA512_OUTPUT_BYTES;
     i += 1;
   }
   // Until we cannot anymore, and we fill the remainder.
   if outlen > i*SPX_SHA512_OUTPUT_BYTES {
-    u32_to_bytes(&mut inbuf[INLEN..], i as u32);
-    sha512(&mut outbuf, &inbuf, INLEN + 4);
+    u32_to_bytes(&mut inbuf[L::SHA2_INLEN..], i as u32);
+    sha512(&mut outbuf, &inbuf, L::SHA2_INLEN + 4);
     let end = outlen - i*SPX_SHA512_OUTPUT_BYTES;
     out[idx..idx+end].copy_from_slice(&outbuf[..end]);
   }
@@ -287,11 +290,13 @@ pub fn mgf1_512(out: &mut[u8], outlen: usize, input: &[u8])
 /// Absorb the constant pub_seed using one round of the compression function
 /// This initializes state_seeded and state_seeded_512, which can then be
 /// reused input thash
-pub fn seed_state(ctx: &mut SpxCtx) {
+pub fn seed_state<L: SecLevel>(ctx: &mut SpxCtx<L>) 
+  where [(); L::SPX_N]:
+{
   let mut block = [0u8; SPX_SHA512_BLOCK_BYTES];
 
-  block[..SPX_N].copy_from_slice(&ctx.pub_seed[..SPX_N]);
-  block[SPX_N..SPX_SHA512_BLOCK_BYTES].fill(0);
+  block[..L::SPX_N].copy_from_slice(&ctx.pub_seed[..L::SPX_N]);
+  block[L::SPX_N..SPX_SHA512_BLOCK_BYTES].fill(0);
 
   // block has been properly initialized for both SHA-256 and SHA-512
   sha256_inc_init(&mut ctx.state_seeded);
@@ -306,55 +311,55 @@ pub fn seed_state(ctx: &mut SpxCtx) {
 
 // TODO: Refactor and get rid of code duplication
 // inlen / buffer size is the only difference
-pub fn mgf1_256_2(out: &mut[u8], outlen: usize, input: &[u8])
+pub fn mgf1_256_2<L: SecLevel>(out: &mut[u8], outlen: usize, input: &[u8])
 {
   
-  const INLEN: usize = 2 * SPX_N + SPX_SHAX_OUTPUT_BYTES;
-  let mut inbuf = [0u8; INLEN + 4];
+  // const INLEN: usize = 2 * L::SPX_N + SPX_SHAX_OUTPUT_BYTES;
+  let mut inbuf = [0u8; L::SHA2_INLENX2 + 4];
   let mut outbuf = [0u8; SPX_SHA256_OUTPUT_BYTES];
 
-  inbuf[..INLEN].copy_from_slice(&input[..INLEN]);
+  inbuf[..L::SHA2_INLENX2].copy_from_slice(&input[..L::SHA2_INLENX2]);
 
   // While we can fit in at least another full block of SHA256 output..
   let mut i = 0;
   let mut idx = 0;
   while (i+1)*SPX_SHA256_OUTPUT_BYTES <= outlen {
-    u32_to_bytes(&mut inbuf[INLEN..], i as u32);
-    sha256(&mut out[idx..], &inbuf, INLEN + 4);
+    u32_to_bytes(&mut inbuf[L::SHA2_INLENX2..], i as u32);
+    sha256(&mut out[idx..], &inbuf, L::SHA2_INLENX2 + 4);
     idx += SPX_SHA256_OUTPUT_BYTES;
     i += 1;
   }
   // Until we cannot anymore, and we fill the remainder.
   if outlen > i*SPX_SHA256_OUTPUT_BYTES {
-    u32_to_bytes(&mut inbuf[INLEN..], i as u32);
-    sha256(&mut outbuf, &inbuf, INLEN + 4);
+    u32_to_bytes(&mut inbuf[L::SHA2_INLENX2..], i as u32);
+    sha256(&mut outbuf, &inbuf, L::SHA2_INLENX2 + 4);
     let end = outlen - i*SPX_SHA256_OUTPUT_BYTES;
     out[idx..idx+end].copy_from_slice(&outbuf[..end]);
   }
 }
 
-pub fn mgf1_512_2(out: &mut[u8], outlen: usize, input: &[u8])
+pub fn mgf1_512_2<L: SecLevel>(out: &mut[u8], outlen: usize, input: &[u8])
 {
   // inlen / buffer size is the only difference
-  const INLEN: usize = 2 * SPX_N + SPX_SHAX_OUTPUT_BYTES;
+  // const INLEN: usize = 2 * L::SPX_N + SPX_SHAX_OUTPUT_BYTES;
 
-  let mut inbuf = [0u8; INLEN + 4];
+  let mut inbuf = [0u8; L::SHA2_INLENX2 + 4];
   let mut outbuf = [0u8; SPX_SHA512_OUTPUT_BYTES];
-  inbuf[..INLEN].copy_from_slice(&input[..INLEN]);
+  inbuf[..L::SHA2_INLENX2].copy_from_slice(&input[..L::SHA2_INLENX2]);
 
   // While we can fit in at least another fu64 block of SHA512 output..
   let mut i = 0;
   let mut idx = 0;
   while (i+1)*SPX_SHA512_OUTPUT_BYTES <= outlen {
-    u32_to_bytes(&mut inbuf[INLEN..], i as u32);
-    sha512(&mut out[idx..], &inbuf, INLEN + 4);
+    u32_to_bytes(&mut inbuf[L::SHA2_INLENX2..], i as u32);
+    sha512(&mut out[idx..], &inbuf, L::SHA2_INLENX2 + 4);
     idx += SPX_SHA512_OUTPUT_BYTES;
     i += 1;
   }
   // Until we cannot anymore, and we fill the remainder.
   if outlen > i*SPX_SHA512_OUTPUT_BYTES {
-    u32_to_bytes(&mut inbuf[INLEN..], i as u32);
-    sha512(&mut outbuf, &inbuf, INLEN + 4);
+    u32_to_bytes(&mut inbuf[L::SHA2_INLENX2..], i as u32);
+    sha512(&mut outbuf, &inbuf, L::SHA2_INLENX2 + 4);
     let end = outlen - i*SPX_SHA512_OUTPUT_BYTES;
     out[..end].copy_from_slice(&outbuf[..end]);
   }
@@ -371,7 +376,7 @@ mod tests {
     let mut outbuf = [0u8; SPX_SHA256_OUTPUT_BYTES];
     let expected = [151, 41, 244, 77, 28, 0, 51, 80, 20, 166, 116, 190, 217, 139, 37, 105, 21, 55, 45, 28, 40, 232, 167, 118, 61, 28, 222, 215, 214, 154, 24, 82];
     sha256_inc_finalize(
-      &mut outbuf, &mut sha2_state, &buf, SPX_SHA256_ADDR_BYTES + SPX_N
+      &mut outbuf, &mut sha2_state, &buf, SPX_SHA256_ADDR_BYTES + L::SPX_N
     );
     assert_eq!(outbuf, expected);
   }

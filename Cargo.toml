@@ -24,6 +24,7 @@ optional = true
 [dev-dependencies]
 pqc_core = {version = "0.1.0", path = "../pqc_core"}
 rayon = "1.5.3"
+signature = "1.6.0"
 
 # Must enable only one from each of the groups below
 # otherwise library will throw a compilation error

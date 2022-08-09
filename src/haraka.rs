@@ -5,8 +5,8 @@
 /// by Thomas Pornin <pornin@bolet.org>
 
 use core::ops::{BitXor, BitAnd, Not};
+use crate::api::SecLevel;
 use crate::context::SpxCtx;
-use crate::params::SPX_N;
 
 const HARAKAS_RATE: usize = 32;
 
@@ -519,7 +519,8 @@ pub fn interleave_constant32(out: &mut[u32], input: &[u8])
   br_aes_ct_ortho(out);
 }
 
-pub fn tweak_constants(ctx: &mut SpxCtx)
+pub fn tweak_constants<L: SecLevel>(ctx: &mut SpxCtx<L>)
+  where [(); L::SPX_N]:
 {
   let mut buf = [0u8; 40*16];
 
@@ -527,16 +528,17 @@ pub fn tweak_constants(ctx: &mut SpxCtx)
   ctx.tweaked512_rc64 = HARAKA512_RC64;
 
   // Constants for pk.seed
-  haraka_s(&mut buf, 40*16, &ctx.pub_seed, SPX_N, &ctx);
+  haraka_s::<L>(&mut buf, 40*16, &ctx.pub_seed, L::SPX_N, &ctx);
   for i in 0..10  {
     interleave_constant32(&mut ctx.tweaked256_rc32[i], &buf[32*i..]);
     interleave_constant(&mut ctx.tweaked512_rc64[i], &buf[64*i..]);
   }
 }
 
-pub fn haraka_s_absorb(
-  s: &mut[u8], m: &[u8], mut mlen: usize, p: u8, ctx: &SpxCtx
+pub fn haraka_s_absorb<L: SecLevel>(
+  s: &mut[u8], m: &[u8], mut mlen: usize, p: u8, ctx: &SpxCtx<L>
 )
+  where [(); L::SPX_N]:
 {
   let mut t = [0u8; HARAKAS_RATE];
   let mut idx = 0usize;
@@ -545,7 +547,7 @@ pub fn haraka_s_absorb(
     for i in 0..HARAKAS_RATE  {
         s[i] ^= m[idx+i];
     }
-    haraka512_perm(s, ctx);
+    haraka512_perm::<L>(s, ctx);
     mlen -= HARAKAS_RATE;
     idx += HARAKAS_RATE;
   }
@@ -561,20 +563,24 @@ pub fn haraka_s_absorb(
   }
 }
 
-pub fn haraka_s_squeezeblocks(
-  h: &mut[u8], mut nblocks: usize, s: &mut[u8], r: usize, ctx: &SpxCtx
+pub fn haraka_s_squeezeblocks<L: SecLevel>(
+  h: &mut[u8], mut nblocks: usize, s: &mut[u8], r: usize, ctx: &SpxCtx<L>
 )
+  where [(); L::SPX_N]:
 {
   let mut idx = 0usize;
     while nblocks > 0 {
-      haraka512_perm(s, ctx);
+      haraka512_perm::<L>(s, ctx);
       h[idx..idx+HARAKAS_RATE].copy_from_slice(&s[..HARAKAS_RATE]);
       idx += r;
       nblocks -= 1;
     }
 }
 
-pub fn haraka_s_inc_absorb(s_inc: &mut[u8], m: &[u8], mut mlen: usize, ctx: &SpxCtx)
+pub fn haraka_s_inc_absorb<L: SecLevel>(
+  s_inc: &mut[u8], m: &[u8], mut mlen: usize, ctx: &SpxCtx<L>
+)
+  where [(); L::SPX_N]:
 {
   let mut idx = 0usize;
   // Recall that s_inc[64] is the non-absorbed bytes xored into the state
@@ -587,7 +593,7 @@ pub fn haraka_s_inc_absorb(s_inc: &mut[u8], m: &[u8], mut mlen: usize, ctx: &Spx
     idx += HARAKAS_RATE - s_inc[64] as usize;
     s_inc[64] = 0;
 
-    haraka512_perm(s_inc, ctx);
+    haraka512_perm::<L>(s_inc, ctx);
   }
 
   for i in 0..mlen  {
@@ -605,9 +611,10 @@ pub fn haraka_s_inc_finalize(s_inc: &mut[u8])
   s_inc[64] = 0;
 }
 
-pub fn haraka_s_inc_squeeze(
-  out: &mut[u8], mut outlen: usize, s_inc: &mut[u8], ctx: &SpxCtx
+pub fn haraka_s_inc_squeeze<L: SecLevel>(
+  out: &mut[u8], mut outlen: usize, s_inc: &mut[u8], ctx: &SpxCtx<L>
 )
+  where [(); L::SPX_N]:
 {
 
   // First consume any bytes we still have sitting around
@@ -625,7 +632,7 @@ pub fn haraka_s_inc_squeeze(
 
   // Then squeeze the remaining necessary blocks
   while outlen > 0 {
-    haraka512_perm(s_inc, ctx);
+    haraka512_perm::<L>(s_inc, ctx);
     i = 0usize;
     while i < outlen && i < HARAKAS_RATE {
       out[idx + i] = s_inc[i];
@@ -637,27 +644,29 @@ pub fn haraka_s_inc_squeeze(
   }
 }
 
-pub fn haraka_s(
-  out: &mut[u8], outlen: usize, input: &[u8], inlen: usize, ctx: &SpxCtx
+pub fn haraka_s<L: SecLevel>(
+  out: &mut[u8], outlen: usize, input: &[u8], inlen: usize, ctx: &SpxCtx<L>
 )
+  where [(); L::SPX_N]:
 {
   let mut s = [0u8; 64];
   let mut d = [0u8; 32];
   let mut idx = 0usize;
-  haraka_s_absorb(&mut s, input, inlen, 0x1F, ctx);
+  haraka_s_absorb::<L>(&mut s, input, inlen, 0x1F, ctx);
 
-  haraka_s_squeezeblocks(out, outlen / 32, &mut s, 32, ctx);
+  haraka_s_squeezeblocks::<L>(out, outlen / 32, &mut s, 32, ctx);
   idx += (outlen / 32) * 32;
 
   if outlen % 32 != 0 {
-    haraka_s_squeezeblocks(&mut d, 1, &mut s, 32, ctx);
+    haraka_s_squeezeblocks::<L>(&mut d, 1, &mut s, 32, ctx);
     for i in 0..outlen % 32 {
       out[idx + i] = d[i];
     }
   }
 }
 
-pub fn haraka512_perm(out: &mut[u8], ctx: &SpxCtx)
+pub fn haraka512_perm<L: SecLevel>(out: &mut[u8], ctx: &SpxCtx<L>)
+  where [(); L::SPX_N]:
 {
   let mut tmp_q;
   let mut w = [0u32; 16];
@@ -705,12 +714,13 @@ pub fn haraka512_perm(out: &mut[u8], ctx: &SpxCtx)
   br_range_enc32le(out, &w, 16);
 }
 
-pub fn haraka512(out: &mut[u8], input: &[u8], ctx: &SpxCtx)
+pub fn haraka512<L: SecLevel>(out: &mut[u8], input: &[u8], ctx: &SpxCtx<L>)
+  where [(); L::SPX_N]:
 {
   let mut buf = [0u8;64];
   buf.clone_from_slice(&input);
 
-  haraka512_perm(&mut buf, ctx);
+  haraka512_perm::<L>(&mut buf, ctx);
   // Feed-forward
   for i in 0..64  {
     buf[i] ^= input[i];
@@ -725,6 +735,7 @@ pub fn haraka512(out: &mut[u8], input: &[u8], ctx: &SpxCtx)
 
 #[cfg(feature = "robust")]
 pub fn haraka256(out: &mut[u8], input: &[u8], ctx: &SpxCtx)
+  where [(); L::SPX_N]:
 {
   let mut q = [0u32; 8];
   let mut tmp_q;
