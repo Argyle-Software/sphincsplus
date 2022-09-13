@@ -12,6 +12,7 @@ keywords = ["sphincsplus", "sphincs+", "sphincs", "signature", "post-quantum"]
 
 [dependencies]
 rand = "0.7.3"
+# signature = "1.6.1"
 sha3 = { version = "0.10.4", optional = true }
 
 # Rename sha2 crate
@@ -22,7 +23,7 @@ features = ["compress"]
 optional = true
 
 [dev-dependencies]
-pqc_core = {version = "0.1.0", path = "../pqc_core"}
+pqc_core = {version = "0.1.0", features = ["load"]}
 rayon = "1.5.3"
 
 # Must enable only one from each of the groups below
@@ -49,6 +50,13 @@ s192 = []
 s256 = []
 
 # Tree Hash
+# SPHINCS+ splits the signatures schemes into a simple and a robust 
+# variant for each choice of hash function. The robust variant is 
+# comes with all the conservative security guarantees given in SPHNICS. 
+# The simple variants are pure random oracle instantiations. These 
+# instantiations achieve about a factor three speed-up 
+# compared to the robust counterparts. This comes at the 
+# cost of a purely heuristic security argument.
 simple = []
 robust = []
 
