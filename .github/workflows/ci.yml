@@ -3,6 +3,7 @@ name: All-Tests
 on:
   pull_request:
     branches: [ master, development ]
+  workflow_call:
 
 jobs:
   all-tests:
