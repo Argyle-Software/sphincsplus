@@ -1,19 +1,17 @@
 # SPHINCS<sup>+</sup>
-[![Build Status](https://github.com/Argyle-Software/kyber/actions/workflows/ci.yml/badge.svg)](https://github.com/Argyle-Software/kyber/actions)
-[![Crates](https://img.shields.io/crates/v/pqc-kyber)](https://crates.io/crates/pqc-kyber)
-[![NPM](https://img.shields.io/npm/v/pqc-kyber)](https://www.npmjs.com/package/pqc-kyber)
-[![dependency status](https://deps.rs/repo/github/Argyle-Software/kyber/status.svg)](https://deps.rs/repo/github/Argyle-Software/kyber)
-[![License](https://img.shields.io/crates/l/pqc_kyber)](https://github.com/Argyle-Software/kyber/blob/master/LICENSE-MIT)
+[![Build Status](https://github.com/Argyle-Software/pqc_sphincsplus/actions/workflows/ci.yml/badge.svg)](https://github.com/Argyle-Software/pqc_sphincsplus/actions)
+[![Crates](https://img.shields.io/crates/v/pqc_sphincsplus)](https://crates.io/crates/pqc_sphincsplus)
+[![License](https://img.shields.io/crates/l/pqc_sphincsplus)](https://github.com/Argyle-Software/pqc_sphincsplus/blob/master/LICENSE-MIT)
 
-A rust implementation of the SPHINCS<sup>+</sup> stateless hash-based signature scheme, which has been included in NIST's post-quantum cryptographic standard.
-
+A rust implementation of the SPHINCS<sup>+</sup> stateless hash-based signature scheme, 
+which has been included in NIST's post-quantum cryptographic standard.
 
 
-See the [**features**](#features) section for different options regarding security levels and modes of operation.
+See the [**features**](#features) section for different options regarding security 
+levels and modes of operation.
 
-It is recommended to use SPHINCS<sup>+</sup> in a hybrid system alongside a traditional signature algorithm such as ed25519. 
-
-Please also read the [**security considerations**](#security-considerations) before use.
+It is recommended to use SPHINCS<sup>+</sup> in a hybrid system alongside a 
+traditional signature algorithm such as ed25519. 
 
 ---
 
@@ -23,14 +21,11 @@ In `Cargo.toml`:
 
 ```toml
 [dependencies]
-pqc_kyber = "0.2.1"
+pqc_sphincsplus = "0.1.0"
 ```
 
 ---
 
-## Errors
-
----
 
 ## Features
 
@@ -52,6 +47,7 @@ To compile this library needs one from each of the following categories to be en
   * `simple`
   * `robust`
 
+Using more than one from each group will result in a compile error.
 
 For example: 
 
@@ -79,31 +75,6 @@ The [run_all_tests](tests/run_all_tests.sh) script will traverse all valid featu
 The test vectors are pre-built and located in the [KAT folder](./tests/KAT/). There is a bash script to generate these locally. 
 
 See the [testing readme](./tests/readme.md) for more comprehensive info.
-
----
-
-## Benchmarking
-
-Uses criterion for benchmarking. If you have GNUPlot installed it will generate statistical graphs in `target/criterion/`.
-
-See the [benchmarking readme](./benches/readme.md) for information on correct usage.
-
----
-
-## Fuzzing
-
-The fuzzing suite uses honggfuzz, installation and instructions are on the [fuzzing](./fuzz/readme.md) page. 
-
----
-
-## WebAssembly
-
-
-
----
-
-## Security Considerations 
-
 
 ---
 
@@ -135,7 +106,7 @@ The Sphincs+ Team:
 
 ### Contributing 
 
-For pull requests create a feature fork and submit it to the development branch.
+For pull requests create a feature fork and submit it to the development branch. 
 By contributing to this crate you agree for it to be dual licensed under MIT/Apache 2.0 
 
 More information is available on the [contributing page](./contributing.md)
