@@ -3,33 +3,29 @@
 [![Crates](https://img.shields.io/crates/v/pqc_sphincsplus)](https://crates.io/crates/pqc_sphincsplus)
 [![License](https://img.shields.io/crates/l/pqc_sphincsplus)](https://github.com/Argyle-Software/pqc_sphincsplus/blob/master/LICENSE-MIT)
 
+
 A rust implementation of the SPHINCS<sup>+</sup> stateless hash-based signature scheme, 
 which has been included in NIST's post-quantum cryptographic standard.
 
 
-See the [**features**](#features) section for different options regarding security 
-levels and modes of operation.
-
-It is recommended to use SPHINCS<sup>+</sup> in a hybrid system alongside a 
-traditional signature algorithm such as ed25519. 
+It is highly recommended to use SPHINCS<sup>+</sup> in a hybrid system alongside a 
+traditional signature algorithm such as RSA or ed25519. 
 
 ---
 
 ## Usage 
-
-In `Cargo.toml`:
-
-```toml
-[dependencies]
-pqc_sphincsplus = "0.1.0"
 ```
+ let keys = keypair();
+ let msg = [0u8; 32];
+ let sig = sign(&msg, &keys);
+ let sig_verify = verify(&sig, &msg, &keys);
+ assert(sig_verify.is_ok());
+```
+To compile this library needs one from each of the following categories to be 
+enabled, using more than one from each group will result in a compile error. 
 
----
-
-
-## Features
-
-To compile this library needs one from each of the following categories to be enabled: 
+The security levels target 128, 192 and 256 bit equivalents, corresponding to NIST
+levels 1,3,5 respectively. They are also separated into **fast** (f) and **small** (s) subtypes, which make the tradeoff between either quicker signing or smaller signatures sizes.
 
 * ### Hash
   * `haraka`
@@ -47,8 +43,6 @@ To compile this library needs one from each of the following categories to be en
   * `simple`
   * `robust`
 
-Using more than one from each group will result in a compile error.
-
 For example: 
 
 ```toml
@@ -56,6 +50,7 @@ For example:
 pqc_sphincsplus = {version = "0.1.0", features = ["haraka", "f128", "simple"]}
 ```
 
+A comparison of the different security levels is below.
 
 |               | n  | h  | d  | log(t) | k  |  w  | bit security | pk bytes | sk bytes | sig bytes |
 | :------------ | -: | -: | -: | -----: | -: | --: | -----------: | -------: | -------: | --------: |
