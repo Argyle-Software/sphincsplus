@@ -10,12 +10,17 @@
 //! 
 //! ## Usage 
 //! 
-//! In Cargo.toml
+//! To compile this library needs one from each of the following categories to be 
+//! enabled, using more than one from each group will result in a compile error. 
+//! 
+//! For example in Cargo.toml:
 //! 
 //! ```toml
 //! [dependencies]
 //! pqc_sphincsplus = {version = "0.1.0", features = ["haraka", "f128", "simple"]}
 //! ```
+//! 
+//! To generate a keypair and sign a message with it:
 //! 
 //! ```no_run
 //!  use pqc_sphincsplus::*;
@@ -25,9 +30,6 @@
 //!  let sig_verify = verify(&sig, &msg, &keys);
 //!  assert!(sig_verify.is_ok());
 //! ```
-//! 
-//! To compile this library needs one from each of the following categories to be 
-//! enabled, using more than one from each group will result in a compile error. 
 //! 
 //! The security levels target 128, 192 and 256 bit equivalents, corresponding to NIST
 //! levels 1,3,5 respectively. They are also separated into **fast** (f) and **small** 
