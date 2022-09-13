@@ -1,7 +1,5 @@
 .vscode/
 target/
-variants/target/
 Cargo.lock
-variants/Cargo.lock
 tests/sphincsplus
-variants/modify.sh
+variants/
