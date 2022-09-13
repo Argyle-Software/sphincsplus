@@ -9,14 +9,23 @@
 //! ---
 //! 
 //! ## Usage 
+//! 
+//! In Cargo.toml
+//! 
+//! ```toml
+//! [dependencies]
+//! pqc_sphincsplus = {version = "0.1.0", features = ["haraka", "f128", "simple"]}
+//! ```
+//! 
 //! ```no_run
-//!  # use pqc_sphincsplus::*;
+//!  use pqc_sphincsplus::*;
 //!  let keys = keypair();
 //!  let msg = [0u8; 32];
 //!  let sig = sign(&msg, &keys);
 //!  let sig_verify = verify(&sig, &msg, &keys);
 //!  assert!(sig_verify.is_ok());
 //! ```
+//! 
 //! To compile this library needs one from each of the following categories to be 
 //! enabled, using more than one from each group will result in a compile error. 
 //! 
@@ -25,6 +34,12 @@
 //! (s) subtypes, which make the tradeoff between either quicker signing or smaller 
 //! signatures sizes.
 //! 
+//! SPHINCS+ introduces a split of the signature schemes into a simple and a robust 
+//! variant for each choice of hash function. The robust variant is from the original
+//! NIST PQC first round submission and comes with all the conservative security 
+//! guarantees given before. The simple variants are pure random oracle instantiations. 
+//! These instantiations achieve about a factor three speed-up compared to the robust 
+//! counterparts. This comes at the cost of a purely heuristic security argument.
 //! 
 //! * ### Hash
 //!   * `haraka`
@@ -42,13 +57,6 @@
 //!   * `simple`
 //!   * `robust`
 //! 
-//! For example: 
-//! 
-//! ```toml
-//! [dependencies]
-//! pqc_sphincsplus = {version = "0.1.0", features = ["haraka", "f128", "simple"]}
-//! ```
-//! 
 //! A comparison of the different security levels is below.
 //! 
 //! 
@@ -61,7 +69,6 @@
 //! | SPHINCS+-256s | 32 | 64 |  8 |     14 | 22 |  16 |          255 |       64 |      128 |    29,792 |
 //! | SPHINCS+-256f | 32 | 68 | 17 |      9 | 35 |  16 |          255 |       64 |      128 |    49,856 |
 //! 
-
 
 #![no_std]
 #![allow(incomplete_features)]
@@ -92,13 +99,13 @@ mod wots;
 mod wotsx1;
 mod randombytes;
 
+pub use api::*;
+
 #[cfg(feature = "sha2")] 
 mod sha2;
 
 #[cfg(feature = "haraka")] 
 mod haraka;
-
-pub use api::*;
 
 #[cfg(feature = "KAT")]
 pub use sign::*;
