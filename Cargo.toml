@@ -52,10 +52,6 @@ s256 = []
 simple = []
 robust = []
 
-
 # Speed up KAT
-# [profile.test]
-# opt-level = 3
-
-# [workspace]
-# members = ["."]
+[profile.test]
+opt-level = 3
