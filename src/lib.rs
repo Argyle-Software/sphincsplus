@@ -9,12 +9,13 @@
 //! ---
 //! 
 //! ## Usage 
-//! ```
+//! ```no_run
+//!  # use pqc_sphincsplus::*;
 //!  let keys = keypair();
 //!  let msg = [0u8; 32];
 //!  let sig = sign(&msg, &keys);
 //!  let sig_verify = verify(&sig, &msg, &keys);
-//!  assert(sig_verify.is_ok());
+//!  assert!(sig_verify.is_ok());
 //! ```
 //! To compile this library needs one from each of the following categories to be 
 //! enabled, using more than one from each group will result in a compile error. 
@@ -98,6 +99,9 @@ mod sha2;
 mod haraka;
 
 pub use api::*;
+
+#[cfg(feature = "KAT")]
+pub use sign::*;
 
 pub use params::{
   CRYPTO_BYTES, 

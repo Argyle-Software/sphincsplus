@@ -52,6 +52,10 @@ s256 = []
 simple = []
 robust = []
 
+# Exposes inner api methods
+# Do not use except for running test vectors
+KAT = []
+
 # Speed up KAT
 [profile.test]
 opt-level = 3

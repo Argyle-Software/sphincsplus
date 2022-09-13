@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use pqc_core::{load, Kat};
 use pqc_sphincsplus::*;
-use rayon::prelude::*;
+use rayon::prelude::*; 
 
 // Only do a subset of test vectors, usage: 
 // QUICK_TEST=1 cargo test --release
@@ -56,42 +56,31 @@ pub fn keygen() {
 #[test]
 pub fn sign() {
   let (kats, bufs) = parse_files(Some(&buf2()));
-  // TODO: Check Rayon iter performing worse?
-  // kats.par_iter().enumerate().for_each(|(i, kat)| 
-  for (i, kat) in kats.iter().enumerate()
+  kats.par_iter().enumerate().for_each(|(i, kat)| 
   {
     let sm = kat.sm.clone();
-    let smlen = kat.smlen;
     let msg = kat.msg.clone();
-    let mlen = kat.mlen;
     let sk = kat.sk.clone();
-    let mut sm2 = vec![0u8; CRYPTO_BYTES + mlen];
-    let mut smlen2 = 0usize;
+    let mut sig = vec![0u8; CRYPTO_BYTES];
     
-    crypto_sign(&mut sm2, &mut smlen2, &msg, mlen, &sk, Some(&bufs[i]));
-    assert_eq!(sm, sm2);
-    assert_eq!(smlen, smlen2);
+    crypto_sign_signature(&mut sig, &msg, &sk, Some(&bufs[i]));
+    assert_eq!(sm[..CRYPTO_BYTES], sig);
     
     if QUICK && i == SHORT_RUN {
       return
     }
-  }
-  // });
+  });
 }
 
 #[test]
 pub fn sign_open() {
   let (kats, _) = parse_files(None);
   for (i, kat) in kats.iter().enumerate() {
-    let mut sm = kat.sm.clone();
-    let smlen = kat.smlen;
-    let msg = kat.msg.clone();
-    let mut mlen = kat.mlen;
+    let sm = kat.sm.clone();
     let pk = kat.pk.clone();
-    let mut msg2 = vec![0u8; CRYPTO_BYTES + mlen as usize];
-
-    crypto_sign_open(&mut msg2, &mut mlen, &mut sm, smlen, &pk);
-    assert_eq!(msg, msg2[..mlen as usize]);
+    
+    let res = crypto_sign_verify(&sm[..CRYPTO_BYTES], &sm[CRYPTO_BYTES..], &pk);
+    assert!(res.is_ok());
     
     if QUICK && i == SHORT_RUN {
       break

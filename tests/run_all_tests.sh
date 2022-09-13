@@ -11,7 +11,7 @@ for hash in ${HASH[@]}; do
   for mode in ${MODE[@]}; do
     for thash in ${THASH[@]}; do
       echo -e "\n\\n #### $hash-$mode-$thash ####"
-      QUICK_TEST=1 cargo test --release --features "$hash $mode $thash"
+      cargo test --release --features "$hash $mode $thash KAT"
     done
   done
 done
