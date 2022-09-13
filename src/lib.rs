@@ -69,19 +69,33 @@
 //! | SPHINCS+-256s | 32 | 64 |  8 |     14 | 22 |  16 |          255 |       64 |      128 |    29,792 |
 //! | SPHINCS+-256f | 32 | 68 | 17 |      9 | 35 |  16 |          255 |       64 |      128 |    49,856 |
 //! 
-
 #![no_std]
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
-
-// TODO: Compile error for conflicting features to prevent misuse
-#[cfg(not(all(
+// Require one from each variant category 
+#![cfg(all(
   any(feature = "haraka", feature = "shake", feature = "sha2"),
   any(feature = "f128", feature = "f192", feature = "f256",
       feature = "s128", feature = "s192", feature = "s256"),
   any(feature = "robust", feature = "simple") 
-)))] 
-compile_error!("Must choose one from each category of the feature set to build");
+))]
+
+// Check for invalid feature sets
+macro_rules! assert_unique_feature {
+  () => {};
+  ($first:tt $(,$rest:tt)*) => {
+    $(
+      #[cfg(all(feature = $first, feature = $rest))]
+      compile_error!(concat!("features \"", $first, "\" and \"", $rest, "\" cannot be used together"));
+    )*
+    assert_unique_feature!($($rest),*);
+  }
+}
+
+assert_unique_feature!("haraka", "shake", "sha2");
+assert_unique_feature!("f128", "f192", "f256","s128", "s192", "s256");
+assert_unique_feature!("robust", "simple");
+
 
 mod api;
 mod address;
