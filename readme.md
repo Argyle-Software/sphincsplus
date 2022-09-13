@@ -13,8 +13,16 @@ traditional signature algorithm such as RSA or ed25519.
 
 ---
 
-## Usage 
+## Usage
+
+In Cargo.toml
+
+```toml
+[dependencies]
+pqc_sphincsplus = {version = "0.1.0", features = ["haraka", "f128", "simple"]}
 ```
+
+```rust
  let keys = keypair();
  let msg = [0u8; 32];
  let sig = sign(&msg, &keys);
@@ -25,7 +33,15 @@ To compile this library needs one from each of the following categories to be
 enabled, using more than one from each group will result in a compile error. 
 
 The security levels target 128, 192 and 256 bit equivalents, corresponding to NIST
-levels 1,3,5 respectively. They are also separated into **fast** (f) and **small** (s) subtypes, which make the tradeoff between either quicker signing or smaller signatures sizes.
+levels 1,3,5 respectively. They are also separated into **fast** (f) and **small** (s) 
+subtypes, which make the tradeoff between either quicker signing or smaller signatures sizes.
+
+SPHINCS+ introduces a split of the signature schemes into a simple and a robust 
+variant for each choice of hash function. The robust variant is from the original
+NIST PQC first round submission and comes with all the conservative security 
+guarantees given before. The simple variants are pure random oracle instantiations. 
+These instantiations achieve about a factor three speed-up compared to the robust 
+counterparts. This comes at the cost of a purely heuristic security argument.
 
 * ### Hash
   * `haraka`
@@ -43,12 +59,6 @@ levels 1,3,5 respectively. They are also separated into **fast** (f) and **small
   * `simple`
   * `robust`
 
-For example: 
-
-```toml
-[dependencies]
-pqc_sphincsplus = {version = "0.1.0", features = ["haraka", "f128", "simple"]}
-```
 
 A comparison of the different security levels is below.
 
