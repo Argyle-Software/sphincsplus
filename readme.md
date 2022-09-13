@@ -1,7 +1,7 @@
 # SPHINCS<sup>+</sup>
-[![Build Status](https://github.com/Argyle-Software/pqc_sphincsplus/actions/workflows/ci.yml/badge.svg)](https://github.com/Argyle-Software/pqc_sphincsplus/actions)
+[![Build Status](https://github.com/Argyle-Software/sphincsplus/actions/workflows/ci.yml/badge.svg)](https://github.com/Argyle-Software/sphincsplus/actions)
 [![Crates](https://img.shields.io/crates/v/pqc_sphincsplus)](https://crates.io/crates/pqc_sphincsplus)
-[![License](https://img.shields.io/crates/l/pqc_sphincsplus)](https://github.com/Argyle-Software/pqc_sphincsplus/blob/master/LICENSE-MIT)
+[![License](https://img.shields.io/crates/l/pqc_sphincsplus)](https://github.com/Argyle-Software/sphincsplus/blob/master/LICENSE-MIT)
 
 
 A rust implementation of the SPHINCS<sup>+</sup> stateless hash-based signature scheme, 
@@ -15,12 +15,17 @@ traditional signature algorithm such as RSA or ed25519.
 
 ## Usage
 
-In Cargo.toml
+To compile this library needs one from each of the following categories to be 
+enabled, using more than one from each group will result in a compile error. 
+
+For example in Cargo.toml:
 
 ```toml
 [dependencies]
 pqc_sphincsplus = {version = "0.1.0", features = ["haraka", "f128", "simple"]}
 ```
+
+To generate a keypair and sign a msg:
 
 ```rust
  let keys = keypair();
@@ -29,8 +34,6 @@ pqc_sphincsplus = {version = "0.1.0", features = ["haraka", "f128", "simple"]}
  let sig_verify = verify(&sig, &msg, &keys);
  assert(sig_verify.is_ok());
 ```
-To compile this library needs one from each of the following categories to be 
-enabled, using more than one from each group will result in a compile error. 
 
 The security levels target 128, 192 and 256 bit equivalents, corresponding to NIST
 levels 1,3,5 respectively. They are also separated into **fast** (f) and **small** (s) 
@@ -83,6 +86,15 @@ See the [testing readme](./tests/readme.md) for more comprehensive info.
 
 ---
 
+### Contributing 
+
+For pull requests create a feature fork and submit it to the development branch. 
+By contributing to this crate you agree for it to be dual licensed under MIT/Apache 2.0 
+
+More information is available on the [contributing page](./contributing.md)
+
+---
+
 ## About
 
 The official website: https://sphincs.org/
@@ -107,13 +119,6 @@ The Sphincs+ Team:
 * Joost Rijneveld
 * Peter Schwabe
 * Bas Westerbaan
----
 
-### Contributing 
-
-For pull requests create a feature fork and submit it to the development branch. 
-By contributing to this crate you agree for it to be dual licensed under MIT/Apache 2.0 
-
-More information is available on the [contributing page](./contributing.md)
 
 
