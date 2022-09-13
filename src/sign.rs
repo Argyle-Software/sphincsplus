@@ -1,3 +1,4 @@
+use crate::api::SigError;
 use crate::context::SpxCtx;
 use crate::params::*;
 use crate::wots::*;
@@ -58,7 +59,7 @@ pub fn  crypto_sign_keypair(
 
 /// Returns an array containing a detached signature.
 pub fn  crypto_sign_signature(
-  sig: &mut[u8], m: &[u8], mlen: usize, sk: &[u8], seed: Option<&[u8]>
+  sig: &mut[u8], m: &[u8], sk: &[u8], seed: Option<&[u8]>
 )
 {
   let mut ctx = SpxCtx::default();
@@ -98,11 +99,11 @@ pub fn  crypto_sign_signature(
   }
   
   // Compute the digest randomization value.
-  gen_message_random(sig, &sk_prf, &optrand, m, mlen, &ctx);
+  gen_message_random(sig, &sk_prf, &optrand, m, m.len(), &ctx);
 
   // Derive the message digest and leaf index from R, PK and M.
   hash_message(
-    &mut mhash, &mut tree, &mut idx_leaf, sig, &pk, m, mlen, &ctx
+    &mut mhash, &mut tree, &mut idx_leaf, sig, &pk, m, m.len(), &ctx
   );
   idx += SPX_N;
 
@@ -133,7 +134,7 @@ pub fn  crypto_sign_signature(
 }
 
 /// Verifies a detached signature and message under a given public key.
-pub fn crypto_sign_verify(sig: &mut[u8], mlen: usize, pk: &[u8]) -> i32
+pub fn crypto_sign_verify(sig: &[u8], msg: &[u8], pk: &[u8]) -> Result<(), SigError>
 {
   let mut ctx = SpxCtx::default();
   let pub_root: &[u8] = &pk[SPX_N..];
@@ -145,7 +146,6 @@ pub fn crypto_sign_verify(sig: &mut[u8], mlen: usize, pk: &[u8]) -> i32
   let (mut wots_addr, mut tree_addr, mut wots_pk_addr) = ([0u32; 8], [0u32; 8], [0u32; 8]);
   let mut idx = 0usize;
 
-  // TODO: return Result + impl error struct
   // if siglen != SPX_BYTES as u64 {
   //     return -1;
   // }
@@ -164,7 +164,7 @@ pub fn crypto_sign_verify(sig: &mut[u8], mlen: usize, pk: &[u8]) -> i32
   // The additional SPX_N is a result of the hash domain separator.
   hash_message(
     &mut mhash, &mut tree, &mut idx_leaf, sig, 
-    pk, &sig[SPX_BYTES..], mlen, &ctx
+    pk, &msg, msg.len(), &ctx
   );
   idx += SPX_N;
 
@@ -207,51 +207,10 @@ pub fn crypto_sign_verify(sig: &mut[u8], mlen: usize, pk: &[u8]) -> i32
 
   // Check if the root node equals the root node in the public key.
   if root == pub_root {
-      return -1;
+      return Err(SigError::Verify);
   }
 
-  return 0;
+  return Ok(());
 }
 
-// Returns an array containing the signature followed by the message.
-pub fn crypto_sign(
-  sm: &mut[u8], smlen: &mut usize, m: &[u8], 
-  mlen: usize, sk: &[u8], seed: Option<&[u8]>
-) -> i32
-{
-  crypto_sign_signature(sm, m, mlen, sk, seed);
 
-  sm[SPX_BYTES..].copy_from_slice(&m);
-  *smlen = SPX_BYTES + mlen;
-
-  return 0;
-}
-
-// Verifies a given signature-message pair under a given public key.
-pub fn crypto_sign_open(
-  m: &mut[u8], mlen: &mut usize, sm: &mut [u8], smlen: usize, pk: &[u8]
-) -> i32
-{
-  // The API caller does not necessarily know what size a signature should be
-  // but SPHINCS+ signatures are always exactly SPX_BYTES.
-  if smlen < SPX_BYTES {
-    m.fill(0);
-    *mlen = 0;
-    return -1;
-  }
-
-  *mlen = smlen - SPX_BYTES;
-
-  if (crypto_sign_verify(sm, *mlen as usize, pk)) != 0 {
-    m.fill(0);
-    *mlen = 0;
-    return -1;
-  }
-
-  // If verification was successful, move the message to the right place.
-  let end = *mlen as usize + SPX_BYTES;
-  let end2 = *mlen;
-  m[..end2 as usize].copy_from_slice(&sm[SPX_BYTES..end]);
-
-  return 0;
-}
