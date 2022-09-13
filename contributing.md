@@ -5,6 +5,7 @@ you agree to it being licensed under dual MIT/Apache 2.0
 
 TODO list:
 
+- [ ] BYO RNG
 - [ ] RustCrypto traits
 - [ ] haraka-aesni
 - [ ] sha2-avx2 
@@ -13,6 +14,10 @@ TODO list:
 - [ ] Refactor
 - [ ] Serde
 
+
+### BYO RNG
+
+Crate hardcodes using OsRng at the moment, this should be pluggable with RngCore + CryptoRng trait bounds
 
 ### RustCrypto traits
 
@@ -100,15 +105,6 @@ pub fn  crypto_sign<H: HashMode, L: SecLevel, T: TreeHash>(
 There's a lot of repetition of trait bounds in functions still that can be 
 eliminated at the cost of inlining and having much larger functions. 
 
-
-Some discarded alternative solutions: 
-
- * Abandon semver and use api versions to fool cargo into building the same 
- crate multiple times to expose multiple variants for use.
-
- * Build as dylibs for distribution 
-
-Neither of those are a good idea.
 
 Check the refactor branch for progress. 
 
