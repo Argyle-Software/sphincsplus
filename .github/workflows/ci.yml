@@ -21,11 +21,6 @@ jobs:
         with:
           toolchain: nightly
 
-      - name: Cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-
       - name: Run test suite
         shell: bash
         working-directory: ./tests
