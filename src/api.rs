@@ -1,10 +1,10 @@
-use crate::params::{CRYPTO_SECRETKEYBYTES, CRYPTO_PUBLICKEYBYTES, SPX_BYTES};
+use crate::params::{CRYPTO_SECRETKEYBYTES, CRYPTO_PUBLICKEYBYTES, CRYPTO_BYTES};
 use crate::sign::*;
 
 #[derive(Copy, Clone)]
 pub struct Keypair {
-  public: [u8; CRYPTO_PUBLICKEYBYTES],
-  secret: [u8; CRYPTO_SECRETKEYBYTES]
+  pub public: [u8; CRYPTO_PUBLICKEYBYTES],
+  pub secret: [u8; CRYPTO_SECRETKEYBYTES]
 }
 
 pub enum SigError {
@@ -16,6 +16,7 @@ pub enum SigError {
 /// 
 /// Example: 
 /// ```no_run
+/// # use pqc_sphincsplus::*;
 /// let keys = keypair();
 /// assert!(keys.public.len() == CRYPTO_PUBLICKEYBYTES);
 /// assert!(keys.secret.len() == CRYPTO_SECRETKEYBYTES);
@@ -32,14 +33,15 @@ pub fn keypair() -> Keypair
 /// 
 /// Example: 
 /// ```no_run
+/// # use pqc_sphincsplus::*;
 /// # let keys = keypair();
 /// let msg = [0u8; 32];
 /// let sig = sign(&msg, &keys);
-/// assert!(sig.len() == SPX_BYTES);
+/// assert!(sig.len() == CRYPTO_BYTES);
 /// ```  
-pub fn sign(msg: &[u8], keypair: &Keypair) -> [u8; SPX_BYTES] 
+pub fn sign(msg: &[u8], keypair: &Keypair) -> [u8; CRYPTO_BYTES] 
 {
-  let mut sig = [0u8; SPX_BYTES];
+  let mut sig = [0u8; CRYPTO_BYTES];
   crypto_sign_signature(&mut sig, msg, &keypair.secret, None);
   sig
 }
@@ -48,11 +50,12 @@ pub fn sign(msg: &[u8], keypair: &Keypair) -> [u8; SPX_BYTES]
 /// 
 /// Example: 
 /// ```no_run
+/// # use pqc_sphincsplus::*;
 /// # let keys = keypair();
 /// # let msg = [0u8; 32];
 /// # let sig = sign(&msg, &keys);
 /// let sig_verify = verify(&sig, &msg, &keys);
-/// assert(sig_verify.is_ok());
+/// assert!(sig_verify.is_ok());
 pub fn verify(sig: &[u8], msg: &[u8], keypair: &Keypair) -> Result<(), SigError>
 {
   crypto_sign_verify(&sig, &msg, &keypair.public)
