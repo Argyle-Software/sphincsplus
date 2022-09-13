@@ -86,16 +86,10 @@ pub fn  crypto_sign<H: HashMode, L: SecLevel, T: TreeHash>(
   sig: &mut[u8], m: &[u8], sk: &[u8], seed: Option<&[u8]>
 )
   where [(); L::SPX_N]:,
-        // [(); L::SPX_N * 2]:,
-        // [(); 2*L::SPX_N]:,
-        // [(); L::SPX_WOTS_LEN]:,
         [(); L::SPX_DGST_BYTES]:,
         [(); L::WOTS_STACK_LEN]:,
         [(); L::SPX_FORS_MSG_BYTES]:,
-        // [(); L::SPX_FORS_TREES * L::SPX_N]:,
         [(); L::SPX_TREE_HEIGHT * L::SPX_N + L::SPX_WOTS_BYTES]:,
-        // [(); 2*L::SPX_N]:,
-        // [(); L::SPX_FORS_TREES * L::SPX_N]:,
         [(); L::SPX_FORS_HEIGHT]:,
         [(); L::FORS_STACK_LEN]:,
         [(); L::SPX_ADDR_BYTES + 2 * L::SPX_N]:,
