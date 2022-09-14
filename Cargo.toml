@@ -7,7 +7,7 @@ description = "Sphincs+ is a post-quantum signature scheme"
 readme = "readme.md"
 repository = "https://github.com/Argyle-Software/pqc_sphincsplus"
 license = "MIT OR Apache-2.0"
-categories = ["algorithms", "cryptography"]
+categories = ["algorithms", "cryptography", "no-std"]
 keywords = ["sphincsplus", "sphincs+", "sphincs", "signature", "post-quantum"]
 exclude = ["tests/KAT/", ".github" ]
 
