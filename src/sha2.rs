@@ -4,6 +4,7 @@ use crate::params::*;
 use crate::utils::*;
 use sha256::digest::generic_array::GenericArray;
 
+#[cfg(any(feature="f128", feature="s128"))]
 pub const SPX_SHA256_BLOCK_BYTES: usize = 64;
 pub const SPX_SHA256_OUTPUT_BYTES: usize = 32;  /* This does not necessarily equal SPX_N */
 
@@ -258,9 +259,8 @@ pub fn mgf1_256(out: &mut[u8], outlen: usize, input: &[u8])
   }
 }
 
-
 // mgf1 function based on the SHA-512 hash function
-#[cfg(feature = "robust")]
+#[cfg(all(feature = "robust", not(any(feature="f128", feature="s128"))))]
 pub fn mgf1_512(out: &mut[u8], outlen: usize, input: &[u8])
 {
   const INLEN: usize = SPX_N + SPX_SHA256_ADDR_BYTES;
@@ -363,6 +363,7 @@ pub fn mgf1_512_2(out: &mut[u8], outlen: usize, input: &[u8])
 }
 
 // TODO: mfg1 tests instead
+#[cfg(test)]
 #[cfg(all(feature = "sha2", feature = "f128", feature= "robust"))]
 mod tests {
   use super::*;

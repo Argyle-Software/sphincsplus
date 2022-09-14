@@ -52,7 +52,7 @@ pub fn thash_512<const N: usize>(
 
   buf[..SPX_SHA256_ADDR_BYTES]
     .copy_from_slice(&address_to_bytes(&addr)[..SPX_SHA256_ADDR_BYTES]);
-  buf[SPX_SHA256_ADDR_BYTES..]
+  buf[SPX_SHA256_ADDR_BYTES..SPX_SHA256_ADDR_BYTES + N * SPX_N]
     .copy_from_slice(&input.unwrap_or(out)[..N * SPX_N]);
 
   sha512_inc_finalize(
