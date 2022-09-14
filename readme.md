@@ -63,16 +63,16 @@ counterparts. This comes at the cost of a purely heuristic security argument.
   * `robust`
 
 
-A comparison of the different security levels is below.
+A comparison of the different security levels:
 
-|               | n  | h  | d  | log(t) | k  |  w  | bit security | pk bytes | sk bytes | sig bytes |
-| :------------ | -: | -: | -: | -----: | -: | --: | -----------: | -------: | -------: | --------: |
-| SPHINCS+-128s | 16 | 63 |  7 |     12 | 14 |  16 |          133 |       32 |       64 |     7,856 |
-| SPHINCS+-128f | 16 | 66 | 22 |      6 | 33 |  16 |          128 |       32 |       64 |    17,088 |
-| SPHINCS+-192s | 24 | 63 |  7 |     14 | 17 |  16 |          193 |       48 |       96 |    16,224 |
-| SPHINCS+-192f | 24 | 66 | 22 |      8 | 33 |  16 |          194 |       48 |       96 |    35,664 |
-| SPHINCS+-256s | 32 | 64 |  8 |     14 | 22 |  16 |          255 |       64 |      128 |    29,792 |
-| SPHINCS+-256f | 32 | 68 | 17 |      9 | 35 |  16 |          255 |       64 |      128 |    49,856 |
+|               	| bit security 	| pk bytes 	| sk bytes 	| sig bytes 	|
+|---------------	|-------------:	|---------:	|---------:	|----------:	|
+| SPHINCS+-128s 	|          133 	|       32 	|       64 	|     7,856 	|
+| SPHINCS+-128f 	|          128 	|       32 	|       64 	|    17,088 	|
+| SPHINCS+-192s 	|          193 	|       48 	|       96 	|    16,224 	|
+| SPHINCS+-192f 	|          194 	|       48 	|       96 	|    35,664 	|
+| SPHINCS+-256s 	|          255 	|       64 	|      128 	|    29,792 	|
+| SPHINCS+-256f 	|          255 	|       64 	|      128 	|    49,856 	|
 
 ---
 
