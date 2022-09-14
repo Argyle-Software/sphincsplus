@@ -43,8 +43,6 @@ pub fn thash_512<const N: usize>(
 )
   where [(); SPX_N + SPX_SHA256_ADDR_BYTES + N * SPX_N]: Sized
 {
-  use crate::sha2::sha512_inc_finalize;
-
   let mut outbuf = [0u8; SPX_SHA512_OUTPUT_BYTES];
   let mut sha2_state = [0u8; 72];
   let mut buf = [0u8; SPX_N + SPX_SHA256_ADDR_BYTES + N * SPX_N];
@@ -54,7 +52,7 @@ pub fn thash_512<const N: usize>(
 
   buf[..SPX_SHA256_ADDR_BYTES]
     .copy_from_slice(&address_to_bytes(&addr)[..SPX_SHA256_ADDR_BYTES]);
-  buf[SPX_SHA256_ADDR_BYTES..]
+  buf[SPX_SHA256_ADDR_BYTES..SPX_SHA256_ADDR_BYTES + N * SPX_N]
     .copy_from_slice(&input.unwrap_or(out)[..N * SPX_N]);
 
   sha512_inc_finalize(

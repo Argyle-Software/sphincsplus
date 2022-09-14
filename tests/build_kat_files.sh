@@ -35,7 +35,7 @@ diff $root/Makefile.orig Makefile || true
 
 # Move modified files
 cp PQCgenKAT_sign.c $root/PQCgenKAT_sign.c
-cp Makefile $root/Makefile/
+cp Makefile $root/Makefile
 
 cd $root
 

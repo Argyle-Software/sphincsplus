@@ -1,12 +1,12 @@
 use std::path::PathBuf;
 use pqc_core::{load, Kat};
 use pqc_sphincsplus::*;
-use rayon::prelude::*; 
+// use rayon::prelude::*; 
 
 // Only do a subset of test vectors, usage: 
 // QUICK_TEST=1 cargo test --release
 const QUICK: bool = option_env!("QUICK_TEST").is_some();
-const SHORT_RUN: usize = 10;
+const SHORT_RUN: usize = 3;
 
 const BUF1_LEN: usize = CRYPTO_SEEDBYTES;
 const BUF2_LEN: usize = CRYPTO_SEEDBYTES / 3;
@@ -35,6 +35,7 @@ fn parse_files(buf_file: Option<&str>) -> (Vec<Kat>, Vec<Vec<u8>>) {
 }
 
 #[test]
+#[cfg(feature = "KAT")]
 pub fn keygen() {
   let (kats, bufs) = parse_files(Some(&buf1()));
   for (i, kat) in kats.iter().enumerate() {
@@ -54,9 +55,11 @@ pub fn keygen() {
 }
 
 #[test]
+#[cfg(feature = "KAT")]
 pub fn sign() {
   let (kats, bufs) = parse_files(Some(&buf2()));
-  kats.par_iter().enumerate().for_each(|(i, kat)| 
+  // kats.par_iter().enumerate().for_each(|(i, kat)|
+  for (i, kat) in kats.iter().enumerate() 
   {
     let sm = kat.sm.clone();
     let msg = kat.msg.clone();
@@ -69,10 +72,12 @@ pub fn sign() {
     if QUICK && i == SHORT_RUN {
       return
     }
-  });
+  }
+  // });
 }
 
 #[test]
+#[cfg(feature = "KAT")]
 pub fn sign_open() {
   let (kats, _) = parse_files(None);
   for (i, kat) in kats.iter().enumerate() {

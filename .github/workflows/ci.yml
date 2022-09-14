@@ -3,6 +3,7 @@ name: All-Tests
 on:
   pull_request:
     branches: [ master, development ]
+  workflow_call:
 
 jobs:
   all-tests:
@@ -19,11 +20,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
-
-      - name: Cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
 
       - name: Run test suite
         shell: bash

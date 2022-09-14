@@ -13,7 +13,7 @@ pub fn thash<const N: usize>(
 {
   #[cfg(all(feature="sha2", not(any(feature="f128", feature="s128"))))]
   {
-    if (N > 1) {
+    if N > 1 {
       thash_512::<N>(out, input, ctx, addr);
       return;
     }
@@ -42,7 +42,7 @@ pub fn thash<const N: usize>(
 
 #[cfg(all(feature="sha2", not(any(feature="f128", feature="s128"))))]
 pub fn thash_512<const N: usize>(
-  out: &mut[u8], input: &[u8], ctx: &SpxCtx, addr: &[u32]
+  out: &mut[u8], input: Option<&[u8]>, ctx: &SpxCtx, addr: &[u32]
 )
   where [(); SPX_N + SPX_SHA256_ADDR_BYTES + N * SPX_N]: Sized
 {
@@ -52,7 +52,8 @@ pub fn thash_512<const N: usize>(
   let mut sha2_state = [0u8; 72];
 
   buf[..SPX_N].copy_from_slice(&ctx.pub_seed);
-  buf[SPX_N..].copy_from_slice(&address_to_bytes(addr));
+  buf[SPX_N..SPX_N + SPX_SHA256_ADDR_BYTES]
+    .copy_from_slice(&address_to_bytes(addr)[..SPX_SHA256_ADDR_BYTES]);
   mgf1_512(&mut bitmask, N * SPX_N, &buf);
 
   // Retrieve precomputed state containing pub_seed
