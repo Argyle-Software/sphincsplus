@@ -231,6 +231,7 @@ pub fn sha512(out: &mut [u8], input: &[u8], inlen: usize) {
 /// Note that inlen should be sufficiently small that it still allows for
 /// an array to be allocated on the stack. Typically 'input' is merely a seed.
 /// Outputs outlen number of bytes
+#[cfg(feature = "robust")]
 pub fn mgf1_256(out: &mut[u8], outlen: usize, input: &[u8])
 {
   const INLEN: usize = SPX_N + SPX_SHA256_ADDR_BYTES;
@@ -259,6 +260,7 @@ pub fn mgf1_256(out: &mut[u8], outlen: usize, input: &[u8])
 
 
 // mgf1 function based on the SHA-512 hash function
+#[cfg(feature = "robust")]
 pub fn mgf1_512(out: &mut[u8], outlen: usize, input: &[u8])
 {
   const INLEN: usize = SPX_N + SPX_SHA256_ADDR_BYTES;
