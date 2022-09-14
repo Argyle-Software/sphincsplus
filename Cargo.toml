@@ -9,6 +9,7 @@ repository = "https://github.com/Argyle-Software/pqc_sphincsplus"
 license = "MIT OR Apache-2.0"
 categories = ["algorithms", "cryptography"]
 keywords = ["sphincsplus", "sphincs+", "sphincs", "signature", "post-quantum"]
+exclude = ["tests/KAT/", ".github" ]
 
 [dependencies]
 rand = "0.7.3"
