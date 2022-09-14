@@ -1,10 +1,11 @@
 # Contributing 
 
 Please submit PR's to the development branch. By contributing to this repo
-you agree to it being licensed under dual MIT/Apache 2.0
+you agree to it being licensed under dual MIT/Apache 2.0.
 
 TODO list:
 
+- [ ] Benchmarking
 - [ ] BYO RNG
 - [ ] RustCrypto traits
 - [ ] haraka-aesni
@@ -13,6 +14,10 @@ TODO list:
 - [ ] WASM
 - [ ] Refactor
 - [ ] Serde
+
+### Benchmarking
+
+Add a benchmarking suite, preferably criterion. 
 
 
 ### BYO RNG
@@ -34,7 +39,6 @@ use the (aes crate) fixsliced implementation for the primitives.
 https://github.com/sphincs/sphincsplus/tree/master/haraka-aesni
 
 https://docs.rs/aes/latest/aes/struct.Aes256.html
-
 
 
 
