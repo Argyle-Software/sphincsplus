@@ -34,7 +34,7 @@ https://docs.rs/signature/latest/signature/
 ### haraka-aesni
 
 Handle all the marshalling into x4 types. Write the intrinsics for haraka.rs OR 
-use the (aes crate) fixsliced implementation for the primitives.
+use the aes crate fixsliced implementation for the primitives.
 
 https://github.com/sphincs/sphincsplus/tree/master/haraka-aesni
 
@@ -105,10 +105,7 @@ pub fn  crypto_sign<H: HashMode, L: SecLevel, T: TreeHash>(
         [(); L::SPX_ADDR_BYTES + L::SPX_WOTS_LEN * L::SPX_N]:,
         [(); (L::SPX_WOTS_LEN2 * L::SPX_WOTS_LOGW + 7) / 8]:,
 ```
-
-There's a lot of repetition of trait bounds in functions still that can be 
-eliminated at the cost of inlining and having much larger functions. 
-
+This possibly can be fixed with generic associated types. A good place to start.
 
 Check the refactor branch for progress. 
 
@@ -120,4 +117,4 @@ Implement serialisation behind a feature gate using serde.
 
 ### Zeroise
 
-Add a zeroise feature to Keypair 
+Add a zeroise feature for the secret part of a keypair
