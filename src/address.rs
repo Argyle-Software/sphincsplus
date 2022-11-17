@@ -1,5 +1,6 @@
 use crate::{ params::*, utils::*, offsets::* };
 
+// This could probably be better represented as an enum with associated constants 
 pub const SPX_ADDR_TYPE_WOTS: u32 = 0;
 pub const SPX_ADDR_TYPE_WOTSPK: u32 = 1;
 pub const SPX_ADDR_TYPE_HASHTREE: u32 = 2;
@@ -14,8 +15,6 @@ fn set_addr(addr: &mut[u32], offset: usize, value: u32)
   let mut addr_bytes = address_to_bytes(addr); 
   addr_bytes[offset] = value as u8;
   bytes_to_address(addr, &addr_bytes);
-  // let set = value << (offset % 4 * 8);
-  // addr[offset / 4 ] = set; //TODO: Check 
 }
 
 fn get_addr(addr: &[u32], offset: usize) -> u32 {
@@ -57,7 +56,7 @@ pub fn copy_subtree_addr(out: &mut [u32], input: &mut [u32])
   bytes_to_address(out, &out_bytes);
 }
 
-/// These functions are used for OTS addresses.
+// These functions are used for OTS addresses.
 
 /// Specify which Merkle leaf we're working on; that is, which OTS keypair
 /// we're talking about.
