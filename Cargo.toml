@@ -1,6 +1,6 @@
 [package]
 name = "pqc_sphincsplus"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Mitchell Berry <foss@mitchellberry.com>"]
 description = "Sphincs+ is a post-quantum signature scheme"
@@ -12,25 +12,23 @@ keywords = ["sphincsplus", "sphincs+", "sphincs", "signature", "post-quantum"]
 exclude = ["tests/KAT/", ".github" ]
 
 [dependencies]
-rand = "0.7.3"
-# signature = "1.6.1"
-sha3 = { version = "0.10.4", optional = true }
+rand = "0.8.5"
+sha3 = { version = "0.10.6", optional = true }
 
 # Rename sha2 crate
 [dependencies.sha256]
 package = "sha2"
-version = "0.10.5"
+version = "0.10.6"
 features = ["compress"]
 optional = true
 
 [dev-dependencies]
 pqc_core = {version = "0.1.0", features = ["load"]}
-rayon = "1.5.3"
+rayon = "1.6.1"
 
 # Must enable only one from each of the groups below
 # otherwise library will throw a compilation error
 [features]
-# default = ["haraka", "f128", "simple"]
 
 # Hash
 haraka = []
