@@ -9,14 +9,14 @@ which has been included in NIST's post-quantum cryptographic standard.
 
 
 It is highly recommended to use SPHINCS<sup>+</sup> in a hybrid system alongside a 
-traditional signature algorithm such as RSA or ed25519. 
+traditional signature algorithm such as RSA or Ed25519. 
 
 ---
 
 ## Usage
 
-To compile this library needs one from each of the following categories to be 
-enabled, using more than one from each group will result in a compile error. 
+To compile, this library needs one from each of the below three categories (Hash, Security Level, Treehash) needs to be 
+enabled, using more than one from each group will result in a compile error.
 
 For example in Cargo.toml:
 
@@ -25,13 +25,13 @@ For example in Cargo.toml:
 pqc_sphincsplus = {version = "0.1.0", features = ["haraka", "f128", "simple"]}
 ```
 
-To generate a keypair and sign a msg:
+To generate a keypair and sign some arbitrary bytes:
 
 ```rust
  let keys = keypair();
- let msg = [0u8; 32];
- let sig = sign(&msg, &keys);
- let sig_verify = verify(&sig, &msg, &keys);
+ let some_msg = [1u8; 42];
+ let sig = sign(&some_msg, &keys);
+ let sig_verify = verify(&sig, &some_msg, &keys);
  assert(sig_verify.is_ok());
 ```
 
@@ -65,7 +65,7 @@ counterparts. This comes at the cost of a purely heuristic security argument.
 
 A comparison of the different security levels:
 
-|               	| bit security 	| pk bytes 	| sk bytes 	| sig bytes 	|
+|               	| bit security 	| public key bytes 	| secret key bytes 	| signature bytes 	|
 |---------------	|-------------:	|---------:	|---------:	|----------:	|
 | SPHINCS+-128s 	|          133 	|       32 	|       64 	|     7,856 	|
 | SPHINCS+-128f 	|          128 	|       32 	|       64 	|    17,088 	|
