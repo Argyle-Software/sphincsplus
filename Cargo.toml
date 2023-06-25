@@ -24,7 +24,7 @@ features = ["compress"]
 optional = true
 
 [dev-dependencies]
-pqc_core = {version = "0.3.0", features = ["load", "unique_feature"]}
+pqc_core = {version = "0.3.0", features = ["load"]}
 
 # Must enable only one from each of the groups below
 # otherwise library will throw a compilation error

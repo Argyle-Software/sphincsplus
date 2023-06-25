@@ -84,6 +84,16 @@
 ))]
 
 // Ensure only one from each category
+macro_rules! assert_unique_feature {
+  () => {};
+  ($first:tt $(,$rest:tt)*) => {
+    $(
+      #[cfg(all(feature = $first, feature = $rest))]
+      compile_error!(concat!("features \"", $first, "\" and \"", $rest, "\" cannot be used together"));
+    )*
+    assert_unique_feature!($($rest),*);
+  }
+}
 assert_unique_feature!("haraka", "shake", "sha2");
 assert_unique_feature!("f128", "f192", "f256","s128", "s192", "s256");
 assert_unique_feature!("robust", "simple");
