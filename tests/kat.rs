@@ -1,27 +1,22 @@
 use std::path::PathBuf;
 use pqc_core::{load, Kat};
 use pqc_sphincsplus::*;
-// use rayon::prelude::*; 
 
-// Only do a subset of test vectors, usage: 
-// QUICK_TEST=1 cargo test --release
-const QUICK: bool = option_env!("QUICK_TEST").is_some();
+// Only use a subset of test vectors, usage: 
+// SPHINCS_FAST_TEST=1 cargo test --release
+const FAST: bool = option_env!("SPHINCS_FAST_TEST").is_some();
 const SHORT_RUN: usize = 3;
-
-const BUF1_LEN: usize = CRYPTO_SEEDBYTES;
-const BUF2_LEN: usize = CRYPTO_SEEDBYTES / 3;
-
 
 fn filename() -> String {
   format!("PQCsignKAT_sphincs-{}-{}-{}.rsp", HASH, MODE, THASH)
 }
 
 fn buf1() -> String {
-  format!("SeedBufferKeygen_{}", BUF1_LEN)
+  format!("SeedBufferKeygen_{}", CRYPTO_SEEDBYTES)
 }
 
 fn buf2() -> String {
-  format!("SeedBufferSign_{}", BUF2_LEN)
+  format!("SeedBufferSign_{}", CRYPTO_SEEDBYTES / 3)
 }
 
 fn parse_files(buf_file: Option<&str>) -> (Vec<Kat>, Vec<Vec<u8>>) {
@@ -48,7 +43,7 @@ pub fn keygen() {
     assert_eq!(pk, pk2);
     assert_eq!(sk, sk2);
     
-    if QUICK && i == SHORT_RUN {
+    if FAST && i == SHORT_RUN {
       break
     }
   }
@@ -69,11 +64,10 @@ pub fn sign() {
     crypto_sign_signature(&mut sig, &msg, &sk, Some(&bufs[i]));
     assert_eq!(sm[..CRYPTO_BYTES], sig);
     
-    if QUICK && i == SHORT_RUN {
+    if FAST && i == SHORT_RUN {
       return
     }
   }
-  // });
 }
 
 #[test]
@@ -87,7 +81,7 @@ pub fn sign_open() {
     let res = crypto_sign_verify(&sm[..CRYPTO_BYTES], &sm[CRYPTO_BYTES..], &pk);
     assert!(res.is_ok());
     
-    if QUICK && i == SHORT_RUN {
+    if FAST && i == SHORT_RUN {
       break
     }
   }

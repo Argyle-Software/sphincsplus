@@ -22,7 +22,7 @@ pub fn fors_sk_to_leaf(
 
 #[derive(Clone, Copy)]
 pub struct ForsGenLeafInfo {
-    pub leaf_addrx: [u32; 8]
+  pub leaf_addrx: [u32; 8]
 }
 
 impl Default for ForsGenLeafInfo {

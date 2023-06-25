@@ -5,7 +5,7 @@ use crate::context::SpxCtx;
 
 pub fn initialize_hash_function(ctx: &mut SpxCtx)
 {
-    tweak_constants(ctx);
+  tweak_constants(ctx);
 }
 
 /// Computes PRF(key, addr), given a secret key of SPX_N bytes and an address

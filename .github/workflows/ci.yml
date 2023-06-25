@@ -25,5 +25,5 @@ jobs:
         shell: bash
         working-directory: ./tests
         run: |
-          chmod +x run_all_tests.sh
-          bash run_all_tests.sh
+          chmod +x test_matrix.sh
+          bash test_matrix.sh

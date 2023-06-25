@@ -616,7 +616,7 @@ pub fn haraka_s_inc_squeeze(
   while i < outlen && i < s_inc[64] as usize {
     // There are s_inc[64] bytes left, so r - s_inc[64] is the first
     // available byte. We consume from there, i.e., up to r.
-    out[i] = s_inc[(HARAKAS_RATE - s_inc[64] as usize + i)];
+    out[i] = s_inc[HARAKAS_RATE - s_inc[64] as usize + i];
     i += 1;
   }
   idx += i;

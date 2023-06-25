@@ -53,7 +53,7 @@ pub fn wots_treehashx1<const T: usize, const S: usize>(
       //authentication path; if it is, write it out
       let start = h as usize * SPX_N;
       if (internal_idx ^ internal_leaf) == 0x01 {
-        auth_path[start..start + SPX_N].copy_from_slice(&current[SPX_N..SPX_N*2]);
+        auth_path[start..][..SPX_N].copy_from_slice(&current[SPX_N..SPX_N*2]);
       }
 
        // Check if we're at a left child; if so, stop going up the stack
@@ -71,7 +71,7 @@ pub fn wots_treehashx1<const T: usize, const S: usize>(
       set_tree_height(tree_addr, h + 1);
       set_tree_index(tree_addr, internal_idx/2 + internal_idx_offset );
 
-      current[  ..SPX_N].copy_from_slice(&stack[start..start + SPX_N]);
+      current[  ..SPX_N].copy_from_slice(&stack[start..][..SPX_N]);
       let tmp_current = current.clone();
       thash::<2>( &mut current[SPX_N..], Some(&tmp_current), ctx, tree_addr);
       h += 1; 
@@ -82,7 +82,7 @@ pub fn wots_treehashx1<const T: usize, const S: usize>(
     // We've hit a left child; save the current for when we get the
     // corresponding right right
     let start = h as usize * SPX_N;
-    stack[start..start + SPX_N].copy_from_slice(&current[SPX_N..SPX_N*2]);
+    stack[start..][..SPX_N].copy_from_slice(&current[SPX_N..SPX_N*2]);
     idx += 1
   }
 }
@@ -92,9 +92,9 @@ pub fn fors_treehashx1<const T: usize, const S: usize>(
   idx_offset: u32, tree_addr: &mut[u32; 8], info: &mut ForsGenLeafInfo
 ) 
 {
+  let mut stack = [0u8; S];
   let mut idx =  0u32;
   let max_idx = (1 << T) - 1;
-  let mut stack = [0u8; S];
   loop {
     let mut current = [0u8; 2*SPX_N];    
 
@@ -111,7 +111,7 @@ pub fn fors_treehashx1<const T: usize, const S: usize>(
       }
       let start = h as usize * SPX_N;
       if (internal_idx ^ internal_leaf) == 0x01 {
-        auth_path[start..start + SPX_N].copy_from_slice(&current[SPX_N..SPX_N*2]);
+        auth_path[start..][..SPX_N].copy_from_slice(&current[SPX_N..SPX_N*2]);
       }
 
       if (internal_idx & 1) == 0 && idx < max_idx {
@@ -122,7 +122,7 @@ pub fn fors_treehashx1<const T: usize, const S: usize>(
       set_tree_height(tree_addr, h + 1);
       set_tree_index(tree_addr, internal_idx/2 + internal_idx_offset );
 
-      current[..SPX_N].copy_from_slice(&stack[start..start + SPX_N]);
+      current[..SPX_N].copy_from_slice(&stack[start..][..SPX_N]);
       let tmp_current = current.clone();
       thash::<2>( &mut current[SPX_N..], Some(&tmp_current), ctx, tree_addr);
       h += 1; 
@@ -131,7 +131,7 @@ pub fn fors_treehashx1<const T: usize, const S: usize>(
     }
 
     let start = h as usize * SPX_N;
-    stack[start..start + SPX_N].copy_from_slice(&current[SPX_N..SPX_N*2]);
+    stack[start..][..SPX_N].copy_from_slice(&current[SPX_N..SPX_N*2]);
     idx += 1
   }
 }

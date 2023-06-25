@@ -1,7 +1,12 @@
 # Contributing 
 
-Please submit PR's to the development branch. By contributing to this repo
-you agree to it being licensed under dual MIT/Apache 2.0.
+Running tests can be slow in debug mode, you might want to alter the optimisations at the expense of opaque debugging, in `Cargo.toml`:
+```toml
+[profile.test]
+opt-level = 3
+```
+
+By contributing to this repo you agree to it being licensed under dual MIT/Apache 2.0.
 
 TODO list:
 
@@ -10,10 +15,11 @@ TODO list:
 - [ ] RustCrypto traits
 - [ ] haraka-aesni
 - [ ] sha2-avx2 
-- [ ] shake avx2 & shake-a64
+- [ ] shake avx2 / shake-a64
 - [ ] WASM
 - [ ] Refactor
 - [ ] Serde
+- [ ] Zeroize
 
 ### Benchmarking
 

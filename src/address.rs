@@ -17,10 +17,6 @@ fn set_addr(addr: &mut[u32], offset: usize, value: u32)
   bytes_to_address(addr, &addr_bytes);
 }
 
-fn get_addr(addr: &[u32], offset: usize) -> u32 {
-  addr[offset / 4] >> offset % 4 * 8
-}
-
 /// Specify which level of Merkle tree (the "layer") we're working on
 pub fn set_layer_addr(addr: &mut [u32], layer: u32)
 { 
@@ -56,7 +52,7 @@ pub fn copy_subtree_addr(out: &mut [u32], input: &mut [u32])
   bytes_to_address(out, &out_bytes);
 }
 
-// These functions are used for OTS addresses.
+/// OTS ADDRESS FUNCTIONS
 
 /// Specify which Merkle leaf we're working on; that is, which OTS keypair
 /// we're talking about.
@@ -72,19 +68,17 @@ pub fn set_keypair_addr(addr: &mut [u32], keypair: u32)
 
 /// Copy the layer, tree and keypair fields of the address structure.  This is
 /// used when we're doing multiple things within the same OTS keypair
-pub fn copy_keypair_addr(out: &mut [u32], input: &mut [u32])
+pub fn copy_keypair_addr(out: &mut [u32], input: &[u32])
 { 
-  let buf = address_to_bytes(input);
-  let mut out_bytes = [0u8; 32];
-  out_bytes[..SPX_OFFSET_TREE + 8].copy_from_slice(&buf[..SPX_OFFSET_TREE + 8]);
-  bytes_to_address(out, &out_bytes);
-  
-  if SPX_FULL_HEIGHT/SPX_D > 8 {
-    let value = get_addr(input, SPX_OFFSET_KP_ADDR2);
-    set_addr(out, SPX_OFFSET_KP_ADDR2, value)
+  let in_buf = address_to_bytes(input);
+  let mut out_buf = address_to_bytes(out);
+  out_buf[..SPX_OFFSET_TREE + 8].copy_from_slice(&in_buf[..SPX_OFFSET_TREE + 8]);
+
+  if SPX_FULL_HEIGHT / SPX_D > 8 {
+    out_buf[SPX_OFFSET_KP_ADDR2] = in_buf[SPX_OFFSET_KP_ADDR2];
   }
-   let value = get_addr(input, SPX_OFFSET_KP_ADDR1);
-   set_addr(out, SPX_OFFSET_KP_ADDR1, value)
+  out_buf[SPX_OFFSET_KP_ADDR1] = in_buf[SPX_OFFSET_KP_ADDR1];
+  bytes_to_address(out, &out_buf);
 }
 
 /// Specify which Merkle chain within the OTS we're working with the chain address

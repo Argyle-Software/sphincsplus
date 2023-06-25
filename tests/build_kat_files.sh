@@ -39,6 +39,7 @@ cp Makefile $root/Makefile
 
 cd $root
 
+# Variants
 HASH=("shake" "haraka" "sha2") 
 MODE=("128f" "128s" "192f" "192s" "256s" "256f") 
 THASH=("simple" "robust")
