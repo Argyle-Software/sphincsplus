@@ -74,7 +74,8 @@
 #![no_std]
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
-// Require one from each variant category 
+
+// Require one from each category 
 #![cfg(all(
   any(feature = "haraka", feature = "shake", feature = "sha2"),
   any(feature = "f128", feature = "f192", feature = "f256",
@@ -82,22 +83,10 @@
   any(feature = "robust", feature = "simple") 
 ))]
 
-// Check for invalid feature sets
-macro_rules! assert_unique_feature {
-  () => {};
-  ($first:tt $(,$rest:tt)*) => {
-    $(
-      #[cfg(all(feature = $first, feature = $rest))]
-      compile_error!(concat!("features \"", $first, "\" and \"", $rest, "\" cannot be used together"));
-    )*
-    assert_unique_feature!($($rest),*);
-  }
-}
-
+// Ensure only one from each category
 assert_unique_feature!("haraka", "shake", "sha2");
 assert_unique_feature!("f128", "f192", "f256","s128", "s192", "s256");
 assert_unique_feature!("robust", "simple");
-
 
 mod api;
 mod address;
@@ -123,6 +112,7 @@ mod sha2;
 #[cfg(feature = "haraka")] 
 mod haraka;
 
+// Known Answer Tests
 #[cfg(feature = "KAT")]
 pub use sign::*;
 

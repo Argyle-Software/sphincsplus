@@ -17,11 +17,10 @@ pub fn gen_chain(
   steps: u32, ctx: &SpxCtx, addr: &mut[u32]
 )
 {
-  // Initialize out with the value at position 'start'.
   out[..SPX_N].copy_from_slice(&input[..SPX_N]);
 
   // Iterate 'steps' calls to the hash function.
-  let mut i = 0;
+  let mut i = start;
   while i < (start+steps) && i < SPX_WOTS_W as u32 {
     set_hash_addr(addr, i);
     thash::<1>(out, None, ctx, addr);
@@ -90,7 +89,7 @@ pub fn wots_pk_from_sig(
 
   for i in 0..SPX_WOTS_LEN  {
     set_chain_addr(addr, i as u32);
-    gen_chain(&mut pk[i*SPX_N..], &sig[i*SPX_N..],
-    lengths[i], SPX_WOTS_W as u32 - 1 - lengths[i], ctx, addr);
+    let steps = SPX_WOTS_W as u32 - 1 - lengths[i];
+    gen_chain(&mut pk[i*SPX_N..], &sig[i*SPX_N..], lengths[i], steps, ctx, addr);
   }
 }

@@ -78,7 +78,7 @@ A comparison of the different security levels:
 
 ## Testing
 
-The [run_all_tests](tests/run_all_tests.sh) script will traverse all valid feature sets by running a matrix of the security levels and variants.
+The [test_matrix](tests/test_matrix.sh) script will traverse all valid feature sets.
 
 The test vectors are pre-built and located in the [KAT folder](./tests/KAT/). There is a bash script to generate these locally. 
 
@@ -119,6 +119,3 @@ The Sphincs+ Team:
 * Joost Rijneveld
 * Peter Schwabe
 * Bas Westerbaan
-
-
-

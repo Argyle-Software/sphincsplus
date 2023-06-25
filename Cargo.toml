@@ -1,6 +1,6 @@
 [package]
 name = "pqc_sphincsplus"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Mitchell Berry <foss@mitchellberry.com>"]
 description = "Sphincs+ is a post-quantum signature scheme"
@@ -12,34 +12,32 @@ keywords = ["sphincsplus", "sphincs+", "sphincs", "signature", "post-quantum"]
 exclude = ["tests/KAT/", ".github" ]
 
 [dependencies]
-rand = "0.7.3"
+rand = "0.8.5"
 # signature = "1.6.1"
-sha3 = { version = "0.10.4", optional = true }
+sha3 = { version = "0.10.8", optional = true }
 
 # Rename sha2 crate
 [dependencies.sha256]
 package = "sha2"
-version = "0.10.5"
+version = "0.10.7"
 features = ["compress"]
 optional = true
 
 [dev-dependencies]
-pqc_core = {version = "0.1.0", features = ["load"]}
-rayon = "1.5.3"
+pqc_core = {version = "0.3.0", features = ["load", "unique_feature"]}
 
 # Must enable only one from each of the groups below
 # otherwise library will throw a compilation error
 [features]
-# default = ["haraka", "f128", "simple"]
 
-# Hash
+### Hash ###
 haraka = []
 sha2 = ["sha256"]
 shake = ["sha3"]
 
-# Security level
+### Security level ###
 # Considered equivalent to 128, 192 and 256 bit
-# NIST levels 1, 3 & 5 respectfully
+# NIST levels 1, 3 & 5 respectively
 # Additionally there is a fast signature mode (f)
 # and a small signature mode (s)
 # See the readme and benchmarks for comparison. 
@@ -50,7 +48,7 @@ s128 = []
 s192 = []
 s256 = []
 
-# Tree Hash
+### Tree Hash ###
 # SPHINCS+ splits the signatures schemes into a simple and a robust 
 # variant for each choice of hash function. The robust variant is 
 # comes with all the conservative security guarantees given in SPHNICS. 
@@ -65,6 +63,3 @@ robust = []
 # Do not use except for running test vectors
 KAT = []
 
-# Speed up KAT
-[profile.test]
-opt-level = 3

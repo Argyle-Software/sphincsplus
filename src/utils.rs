@@ -25,7 +25,6 @@ pub fn u32_to_bytes(out: &mut[u8], input: u32)
 pub fn bytes_to_ull(input: &[u8], inlen: usize ) -> u64
 {
   let mut retval = 0u64;
-
   for i in 0..inlen  {
     retval |= (input[i] as u64) << (8*(inlen - 1 - i));
   }
@@ -61,16 +60,15 @@ pub fn compute_root(
     set_tree_height(addr, i + 1);
     set_tree_index(addr, leaf_idx + idx_offset);
 
-    // Pick the right or left neighbor, depending on parity of the node.
-    
+    // Pick the right or left neighbour, depending on parity of the node.
     if (leaf_idx & 1) != 0 {
       let tmp_buffer = buffer.clone();
       thash::<2>(&mut buffer[SPX_N..], Some(&tmp_buffer), ctx, addr);
-      buffer[..SPX_N].copy_from_slice(&auth_path[idx..idx + SPX_N]);
+      buffer[..SPX_N].copy_from_slice(&auth_path[idx..][..SPX_N]);
   }
     else {
       thash::<2>(&mut buffer, None, ctx, addr);
-      buffer[SPX_N..].copy_from_slice(&auth_path[idx..idx + SPX_N]);
+      buffer[SPX_N..].copy_from_slice(&auth_path[idx..][..SPX_N]);
     }
     idx += SPX_N;
   }
@@ -87,7 +85,7 @@ pub fn bytes_to_address(addr: &mut[u32], bytes: &[u8; 32])
 {
   for i in 0..8 {
     let mut addr_i = [0u8; 4];
-    addr_i.copy_from_slice(&bytes[i*4..i*4+4]);
+    addr_i.copy_from_slice(&bytes[i*4..][..4]);
     addr[i] = u32::from_ne_bytes(addr_i);
   }
 }
@@ -96,7 +94,7 @@ pub fn address_to_bytes(addr: &[u32]) -> [u8; 32]
 {
   let mut out = [0u8; 32];
   for i in 0..8 {
-    out[i*4..i*4+4].copy_from_slice(&addr[i].to_ne_bytes()); //TODO: Check on BE in QEMU
+    out[i*4..][..4].copy_from_slice(&addr[i].to_ne_bytes()); //TODO: Check on BE in QEMU
   }
   out
 }

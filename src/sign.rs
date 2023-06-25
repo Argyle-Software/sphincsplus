@@ -36,7 +36,7 @@ fn crypto_sign_seed_keypair(
 
   pk[SPX_N..2*SPX_N].copy_from_slice(&sk[3*SPX_N..4*SPX_N]);
 
-  return 0;
+  return 0; // TODO: Use rust semantics
 }
 
 /// Generates an SPX key pair.
@@ -53,8 +53,7 @@ pub fn  crypto_sign_keypair(
     randombytes(&mut seed, CRYPTO_SEEDBYTES);
     crypto_sign_seed_keypair(pk, sk, &seed);
   }
-
-  return 0;
+  return 0; // TODO: Use rust semantics
 }
 
 /// Returns an array containing a detached signature.
@@ -136,6 +135,9 @@ pub fn  crypto_sign_signature(
 /// Verifies a detached signature and message under a given public key.
 pub fn crypto_sign_verify(sig: &[u8], msg: &[u8], pk: &[u8]) -> Result<(), SigError>
 {
+  if sig.len() != SPX_BYTES {
+    return Err(SigError::Input)
+  }
   let mut ctx = SpxCtx::default();
   let pub_root: &[u8] = &pk[SPX_N..];
   let mut mhash = [0u8; SPX_FORS_MSG_BYTES];
@@ -145,10 +147,6 @@ pub fn crypto_sign_verify(sig: &[u8], msg: &[u8], pk: &[u8]) -> Result<(), SigEr
   let mut idx_leaf =  0u32;
   let (mut wots_addr, mut tree_addr, mut wots_pk_addr) = ([0u32; 8], [0u32; 8], [0u32; 8]);
   let mut idx = 0usize;
-
-  // if siglen != SPX_BYTES as u64 {
-  //     return -1;
-  // }
   
   ctx.pub_seed[..].copy_from_slice(&pk[..SPX_N]);
 
@@ -206,11 +204,9 @@ pub fn crypto_sign_verify(sig: &[u8], msg: &[u8], pk: &[u8]) -> Result<(), SigEr
   }
 
   // Check if the root node equals the root node in the public key.
-  if root == pub_root {
-      return Err(SigError::Verify);
+  if root != pub_root {
+    return Err(SigError::Verify);
   }
 
   return Ok(());
 }
-
-
