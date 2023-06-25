@@ -1,5 +1,6 @@
 use crate::{ params::*, utils::*, offsets::* };
 
+// This could probably be better represented as an enum with associated constants 
 pub const SPX_ADDR_TYPE_WOTS: u32 = 0;
 pub const SPX_ADDR_TYPE_WOTSPK: u32 = 1;
 pub const SPX_ADDR_TYPE_HASHTREE: u32 = 2;
